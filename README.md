@@ -15,22 +15,3 @@ materials/         Five teaching modules (01–05)
 slides/            One reveal.js deck per section (01–05)
 styles.scss        Website theme
 ```
-
-## Preview
-
-```bash
-quarto preview
-```
-
-## Publishing
-
-Pushes to `main` render the site in GitHub Actions and publish it to the `gh-pages`
-branch at <https://emilhvitfeldt.github.io/workshop-slidecrafting>.
-
-CI does not install R. Executed chunks are replayed from the committed `_freeze/`
-directory, so after adding or editing a code chunk, render locally and commit the
-updated `_freeze/` files.
-
-## Status
-
-Scaffold only. Module bodies are marked with `<!-- TODO -->` and need content.
