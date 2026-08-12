@@ -1,0 +1,113 @@
+/*-- scss:defaults --*/
+
+// TODO: shared theme for all workshop slide decks
+
+/*-- scss:rules --*/
+
+// ---------------------------------------------------------------------------
+// Code/result stage
+//
+// One slide, one fragment. The codewindow sits centre stage, then on the first
+// click it slides out to the left while the rendered deck slides in from the
+// right. Both children are custom fragments: they stay visible the whole time
+// and reveal's `.visible` class swaps their `left` offset instead of their
+// opacity. See https://revealjs.com/fragments/#custom-fragments
+// ---------------------------------------------------------------------------
+
+.reveal .stage {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  margin-bottom: 0.4em;
+
+  // Offsets use `left`, not `transform`: reveal writes its own transform onto
+  // slide content and would overwrite ours.
+  > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  .codewindow {
+    // the extension centres itself; keep that inside the stage
+    margin-inline: auto;
+  }
+
+  iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 3px solid #d0d0d0;
+    border-radius: 6px;
+    background: white;
+  }
+
+}
+
+// A codewindow whose listing is too tall for the slide: cap it at the stage
+// height and let the code area scroll inside the window chrome.
+.reveal .codewindow.codewindow-scroll {
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .textarea {
+    overflow-y: auto;
+    min-height: 0;
+  }
+}
+
+// A standalone iframe filling the slide body, for embedding a live web tool.
+.reveal iframe.toolframe {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 3px solid #d0d0d0;
+  border-radius: 6px;
+  background: white;
+}
+
+// A custom fragment that stays on screen: `opacity` and `visibility` go back to
+// `unset` so reveal's default hiding does not apply, and `.visible` moves the
+// element instead of fading it in.
+// See https://slidecrafting-book.com/fragments
+
+// Centre stage before the click, off to the left after it.
+.reveal .slides section .fragment.stage-exit {
+  opacity: unset;
+  visibility: unset;
+  transition: left 0.8s ease;
+  left: 0;
+}
+
+.reveal .slides section .fragment.stage-exit.visible {
+  left: -130%;
+}
+
+// Waiting off to the right before the click, centre stage after it.
+.reveal .slides section .fragment.stage-enter {
+  opacity: unset;
+  visibility: unset;
+  transition: left 0.8s ease;
+  left: 130%;
+}
+
+.reveal .slides section .fragment.stage-enter.visible {
+  left: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Label above a code window, standing in for a heading. A real `###` inside a
+// fenced div becomes a nested `<section>`, which reveal reads as a vertical
+// sub-slide.
+// ---------------------------------------------------------------------------
+
+.reveal .slides section .syntax-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.3em;
+}
+

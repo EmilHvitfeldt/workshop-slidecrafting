@@ -1,0 +1,16 @@
+---
+filters:
+  - reveal-auto-agenda
+---
+
+# Collecting the data
+
+## A slide
+
+# Fitting the model
+
+## Another slide
+
+# Reporting
+
+## A third slide

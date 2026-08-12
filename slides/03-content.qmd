@@ -1,0 +1,688 @@
+---
+title: "Content & layout"
+subtitle: "Putting things on the slide"
+---
+
+## Objectives
+
+::: {.incremental}
+- How we can position elements on the slides
+- Modify standard elements
+:::
+
+## The default layout
+
+Content flows from the top, left aligned, one thing under the next.
+
+::: {.incremental}
+- That is a fine default, but it is an oppotunity to keep things fresh
+- Everything in this module is a way of stepping out of it
+- Vary the layout across the deck
+:::
+
+# Columns
+
+## Columns, with widths
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## Uneven columns
+
+::: {.columns}
+
+::: {.column width="40%"}
+Left column
+:::
+
+::: {.column width="60%"}
+Right column
+:::
+
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/columns-widths.html#/uneven-columns" title="A 40/60 two-column slide"></iframe>
+:::
+
+::::
+
+::: footer
+<https://slidecrafting-book.com/layout>
+:::
+
+## Not only two
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+::: {.columns}
+
+::: {.column width="33%"}
+1st column
+:::
+
+::: {.column width="33%"}
+2nd column
+:::
+
+::: {.column width="33%"}
+3rd column
+:::
+
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/columns-widths.html#/three-columns" title="A three-column slide"></iframe>
+:::
+
+::::
+
+## An empty column is a quick spacer
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+::: {.columns}
+
+::: {.column width="30%"}
+:::
+
+::: {.column width="70%"}
+Only right side
+:::
+
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/columns-widths.html#/an-empty-column" title="An empty left column pushing content right"></iframe>
+:::
+
+::::
+
+::: {.fragment}
+The cheapest way to put content somewhere other than the top left.
+:::
+
+# Filling the slide
+
+## r-fit-text
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## {.center}
+
+::: r-fit-text
+This fits perfectly!
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/fit-text.html#/one-line" title="Text scaled to the full width of the slide"></iframe>
+:::
+
+::::
+
+::: footer
+<https://quarto.org/docs/presentations/revealjs/advanced.html#fit-text>
+:::
+
+## One block, one size
+
+Everything inside a single `r-fit-text` gets the same size, set by the longest line.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+::: r-fit-text
+This fits perfectly!
+
+On two lines
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/fit-text.html#/one-block" title="Two lines in one r-fit-text block, both small"></iframe>
+:::
+
+::::
+
+## One block per line
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+::: r-fit-text
+This fits perfectly!
+:::
+
+::: r-fit-text
+On two lines
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/fit-text.html#/two-blocks" title="Two r-fit-text blocks, each filling the slide"></iframe>
+:::
+
+::::
+
+::: {.fragment}
+One block per line, and each line fills the slide on its own.
+:::
+
+# Images
+
+## Three ways in
+
+::: {.incremental}
+- A **figure**, flowing with the rest of the content
+- **Absolute**, placed exactly where you say
+- A **background**, filling the whole slide
+:::
+
+::: {.fragment}
+Pick by how much the image is content and how much it is atmosphere.
+:::
+
+::: footer
+<https://slidecrafting-book.com/layout>
+:::
+
+## A figure
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## A basic figure
+
+![](images/holly-mandarich.jpg)
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/images.html#/basic" title="An image added as a plain figure"></iframe>
+:::
+
+::::
+
+::: {.fragment}
+It is content, so it pushes other content around and it respects the margins.
+:::
+
+::: footer
+Photo by [Holly Mandarich](https://unsplash.com/@hollymandarich) on [Unsplash](https://unsplash.com)
+:::
+
+## Absolute
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## Absolute
+
+![](images/noelle-rebekah.jpg){.absolute top=0 right=0 height="100%"}
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/images.html#/absolute" title="An image pinned to the top right at full slide height"></iframe>
+:::
+
+::::
+
+::: footer
+Photo by [Noelle Rebekah](https://unsplash.com/@noellerebekah) on [Unsplash](https://unsplash.com)
+:::
+
+## The six attributes
+
+| Attribute | Description |
+|-----------|-------------|
+| `width` | width of the element |
+| `height` | height of the element |
+| `top` | distance from the top of the slide |
+| `left` | distance from the left of the slide |
+| `bottom` | distance from the bottom of the slide |
+| `right` | distance from the right of the slide |
+
+One of `top` / `bottom`, one of `left` / `right`, and only one of `width` / `height` so the image is not distorted.
+
+## Absolute works on anything
+
+Not just images. Text takes the class too.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## Absolute text
+
+[python is great]{.absolute bottom="45%" left="20%"}
+
+[and so is R]{.absolute bottom="0%" right="0%"}
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/images.html#/absolute-text" title="Two pieces of text placed with .absolute"></iframe>
+:::
+
+::::
+
+## Images stop at 95%
+
+Reveal caps every image with `max-width: 95%` and `max-height: 95%`, so no `height` will push it past the edge.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+![](images/noelle-rebekah.jpg){.absolute top="-10%" right="-10%"
+  height="120%" style="max-height: unset;"}
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/images.html#/absolute-bleed" title="An image bleeding past the slide edges"></iframe>
+:::
+
+::::
+
+::: {.fragment}
+Unset the cap, then use negative offsets to bleed off the edge.
+:::
+
+## A background image
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## A background image {background-image="images/galen-crout.jpg"}
+
+## {background-image="images/galen-crout.jpg"}
+
+[always explore]{.absolute left="50%" top="20%" style="rotate: -10deg;"}
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/images.html#/background" title="A slide with a full-bleed background image"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+
+::: footer
+Photo by [Galen Crout](https://unsplash.com/@galen_crout) on [Unsplash](https://unsplash.com)
+:::
+
+## Text on a photo is hard to read
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## {background-image="images/tim-marshall.jpg"}
+
+::: {.absolute left="55%" top="55%" style="font-size:1.8em;"}
+Be Brave
+
+Take Risks
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/images.html#/overlay-plain" title="Text placed on a busy photo, hard to read"></iframe>
+:::
+
+::::
+
+::: footer
+Photo by [Tim Marshall](https://unsplash.com/@timmarshall) on [Unsplash](https://unsplash.com)
+:::
+
+## Give the text a box
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+::: {.absolute left="55%" top="55%" style="font-size:1.8em;
+  padding: 0.5em 1em;
+  background-color: rgba(255, 255, 255, .5);"}
+Be Brave
+
+Take Risks
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/images.html#/overlay-box" title="The same text on a semi-transparent white box"></iframe>
+:::
+
+::::
+
+::: {.fragment}
+A half-transparent background and some padding, and it is readable.
+:::
+
+## Or float the content on a card
+
+Shrink the slide itself and give it a shadow, and the background can be as loud as it likes.
+
+::: {.codewindow .codewindow-dark .scss width="70%"}
+styles.scss
+
+```scss
+/*-- scss:rules --*/
+.reveal .slides section.paper {
+  width: 92%;
+  height: 86% !important;
+  max-height: 86% !important;
+  left: 4% !important;
+  top: 6% !important;
+  padding: 40px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background-color: #fdfcfa;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+```
+:::
+
+::: {.fragment}
+The `!important` is there because reveal positions slides with inline styles.
+:::
+
+::: footer
+<https://slidecrafting-book.com/layout#paper-card-effect>
+:::
+
+## The paper card
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## My slide {.paper background-color="#ffe83e"}
+
+Content goes here, cleanly inside the card.
+
+## My slide {.paper background-image="galen-crout.jpg" background-size="cover"}
+
+Content goes here, cleanly inside the card.
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/paper-card.html#/colored" title="A slide floating as a card on a yellow background"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+
+::: footer
+<https://slidecrafting-book.com/layout#paper-card-effect>
+:::
+
+# Plots
+
+## Plots are figures with extra knobs
+
+::: {.incremental}
+- `fig-width` / `fig-height` how big the plot is drawn, which sets how big its text is
+- `fig-asp` the ratio, so you only tune one of the two
+- `fig-dpi` raise it when the plot looks soft
+- `fig-align` `left`, `center`, or `right`
+:::
+
+::: {.fragment}
+The defaults sit around `fig-width: 9`, `fig-height: 5`, which makes axis labels too small from the back row.
+:::
+
+::: footer
+<https://slidecrafting-book.com/elements>
+:::
+
+## Smaller plot, bigger text
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+```{{r}}
+#| fig-width: 6
+#| fig-asp: 0.5
+plot(mpg ~ disp, data = mtcars, col = factor(am), pch = 16, bty = "n")
+```
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/plot-sizing.html#/tuned" title="The same plot drawn smaller, so its text is larger"></iframe>
+:::
+
+::::
+
+::: {.fragment}
+Drawing the plot smaller makes its text bigger, because reveal scales it back up to fit.
+:::
+
+## transparent plots background
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+```yaml
+knitr:
+  opts_chunk:
+    dev: png
+    dev.args: { bg: "transparent" }
+```
+
+
+
+```{{python}}
+fig.patch.set_facecolor("#FFFFFF00")
+plt.axes().set_facecolor("#FFFFFF00")
+```
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/plot-background.html#/opaque" title="A white plot sitting on an off-white slide"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+
+::: footer
+<https://slidecrafting-book.com/elements>
+:::
+
+# Highlighting code
+
+## Line by line, for free
+
+`code-line-numbers` takes the lines you want lit up, and `|` splits it into steps.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+```{.r code-line-numbers="|1|2-3|4"}
+library(ggplot2)
+mtcars |>
+  ggplot(aes(mpg, disp)) +
+  geom_point()
+```
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/code-highlight.html#/line-by-line" title="Code highlighted one step at a time"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+::: footer
+<https://quarto.org/docs/presentations/revealjs/#line-highlighting>
+:::
+
+## The same for a computed chunk
+
+::: {.codewindow .codewindow-dark .quarto width="70%"}
+my-deck.qmd
+
+````markdown
+```{{r}}
+#| echo: true
+#| code-line-numbers: "|1|2-3|4"
+library(ggplot2)
+mtcars |>
+  ggplot(aes(mpg, disp)) +
+  geom_point()
+```
+````
+:::
+
+::: {.fragment}
+A leading `|` means the first step is the whole block with nothing highlighted.
+:::
+
+## When the highlighter is not enough
+
+Sometimes you want to point at one argument, in your own color, at your own pace.
+
+::: {.incremental}
+- The code is not really code, it is a picture of code
+- A `.mono` class gets you the look
+- Spans and fragments get you the highlighting
+:::
+
+::: footer
+<https://slidecrafting-book.com/manual-code>
+:::
+
+## One class
+
+::: {.codewindow .codewindow-dark .scss width="70%"}
+styles.scss
+
+```scss
+/*-- scss:rules --*/
+.mono {
+  font-family: monospace;
+  font-size: 0.9em;
+}
+```
+:::
+
+::: {.fragment}
+Then put the code in a div with that class. `\ ` gives you a leading space, and two trailing spaces end a line.
+:::
+
+## Highlight what you want, when you want
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+::: mono
+library([ggplot2]{style="color:purple;"})
+mtcars |>
+\ \ ggplot(aes(mpg, disp)) +
+\ \ geom_point() +
+\ \ geom_smooth([method = "lm"]{.fragment .highlight-red},
+[formula = "y ~ x"]{.fragment .highlight-blue})
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/manual-code.html#/hand-styled-code" title="Hand-styled code highlighted one argument at a time"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+# Your turn
+
+## Exercise
+
+::: {.incremental}
+1. Take a slide with too much on it and split it into two columns
+2. Add a photo as a background image, with one line of text on top of it
+3. Give that text a box so it is readable
+4. Halve the `fig-width` on a plot and see what happens to its text
+:::
+
+# Thank you
+
+Back to the [workshop materials](../materials/03-content.qmd).

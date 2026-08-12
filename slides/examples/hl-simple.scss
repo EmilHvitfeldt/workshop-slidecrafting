@@ -1,0 +1,11 @@
+/*-- scss:rules --*/
+$theme-orange: #FFB81A;
+
+.reveal .slides section .fragment.hl-orange {
+  opacity: unset;
+  visibility: unset;
+
+  &.visible {
+    background-color: $theme-orange;
+  }
+}

@@ -1,0 +1,9 @@
+# Example decks are rendered exactly as the code shown on the slides,
+# so they deliberately do NOT inherit the workshop theme or options.
+format:
+  revealjs:
+    theme: default
+    author: ""
+    slide-number: false
+    footer: ""
+    embed-resources: false

@@ -1,0 +1,228 @@
+.checklist {
+  list-style: none;
+  padding-left: 0;
+}
+
+.checklist li {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  margin-bottom: 0.7em;
+  font-size: 1.1em;
+}
+
+/* ── Checkbox shell ── */
+
+.task-cb {
+  position: relative;
+  width: 1.3em;
+  height: 1.3em;
+  flex-shrink: 0;
+}
+
+.task-cb > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cb-border {
+  fill: none;
+  stroke: #555;
+  stroke-width: 2;
+  transition: stroke 0.25s ease, fill 0.25s ease;
+}
+
+.task-cb:has(.cb-mark.visible)    .cb-border { stroke: #22c55e; fill: #f0fdf4; }
+.task-cb:has(.cb-cross.visible)   .cb-border { stroke: #ef4444; fill: #fef2f2; }
+.task-cb:has(.cb-spin.visible)    .cb-border { stroke: #f59e0b; fill: #fffbeb; }
+.task-cb:has(.cb-skip.visible)    .cb-border { stroke: #9ca3af; fill: #f9fafb; }
+.task-cb:has(.cb-block.visible)   .cb-border { stroke: #ea580c; fill: #fff7ed; }
+.task-cb:has(.cb-unknown.visible) .cb-border { stroke: #8b5cf6; fill: #faf5ff; }
+.task-cb:has(.cb-partial.visible) .cb-border { stroke: #3b82f6; fill: #eff6ff; }
+.task-cb:has(.cb-star.visible)    .cb-border { stroke: #eab308; fill: #fefce8; }
+
+/* ── Shared overlay shell ── */
+
+.cb-mark, .cb-cross, .cb-spin,
+.cb-skip, .cb-block, .cb-unknown,
+.cb-partial, .cb-star {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 1 !important;
+}
+
+.cb-mark svg, .cb-cross svg, .cb-spin svg,
+.cb-skip svg, .cb-block svg, .cb-unknown svg,
+.cb-partial svg, .cb-star svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ══════════════════════════════════════════
+   Transitions handle both directions:
+   • base state  → defines the REVERSE transition (fast, no delay)
+   • .visible    → defines the FORWARD transition (sequenced, eased out)
+   ══════════════════════════════════════════ */
+
+/* ── [/] Checkmark — green, two segments ── */
+
+.cb-path { fill: none; stroke: #22c55e; stroke-width: 2.8; stroke-linecap: round; }
+
+.cb-p1 {
+  stroke-dasharray: 9; stroke-dashoffset: 9;
+  transition: stroke-dashoffset 0.15s ease-in;
+}
+.cb-p2 {
+  stroke-dasharray: 16; stroke-dashoffset: 16;
+  transition: stroke-dashoffset 0.15s ease-in;
+}
+.cb-mark.visible .cb-p1 {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.18s ease-out;
+}
+.cb-mark.visible .cb-p2 {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.28s ease-out 0.14s;
+}
+
+/* ── [-] Cross — red, two diagonals ── */
+
+.cb-line {
+  fill: none; stroke: #ef4444; stroke-width: 2.8; stroke-linecap: round;
+  stroke-dasharray: 18; stroke-dashoffset: 18;
+  transition: stroke-dashoffset 0.15s ease-in;
+}
+.cb-cross.visible .cb-line:nth-child(1) {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.2s ease-out;
+}
+.cb-cross.visible .cb-line:nth-child(2) {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.2s ease-out 0.15s;
+}
+
+/* ── [~] Spinner — amber, rotating arc ── */
+
+.cb-arc {
+  fill: none; stroke: #f59e0b; stroke-width: 2.5; stroke-linecap: round;
+  stroke-dasharray: 33 11;
+  opacity: 0;
+  transition: opacity 0.2s ease-in; /* reverse: quick fade out */
+}
+.cb-spin.visible .cb-arc {
+  opacity: 1;
+  transition: opacity 0.3s ease-out; /* forward: fade in */
+}
+/* rotation only runs while visible */
+.cb-spin.visible svg {
+  animation: rotate-arc 0.9s linear infinite;
+  transform-origin: center;
+}
+@keyframes rotate-arc { to { transform: rotate(360deg); } }
+
+/* ── [>] Skip — gray, chevron ── */
+
+.cb-chev {
+  fill: none; stroke: #9ca3af; stroke-width: 2.8;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.cb-chev-1 {
+  stroke-dasharray: 13; stroke-dashoffset: 13;
+  transition: stroke-dashoffset 0.15s ease-in;
+}
+.cb-chev-2 {
+  stroke-dasharray: 13; stroke-dashoffset: 13;
+  transition: stroke-dashoffset 0.15s ease-in;
+}
+.cb-skip.visible .cb-chev-1 {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.18s ease-out;
+}
+.cb-skip.visible .cb-chev-2 {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.18s ease-out 0.14s;
+}
+
+/* ── [!] Blocked — orange, exclamation mark ── */
+
+.cb-excl-line {
+  fill: none; stroke: #ea580c; stroke-width: 2.8; stroke-linecap: round;
+  stroke-dasharray: 11; stroke-dashoffset: 11;
+  transition: stroke-dashoffset 0.15s ease-in;
+}
+.cb-excl-dot {
+  fill: #ea580c;
+  opacity: 0; transform: scale(0);
+  transform-box: fill-box; transform-origin: center;
+  transition: opacity 0.15s ease-in, transform 0.15s ease-in; /* reverse: instant collapse */
+}
+.cb-block.visible .cb-excl-line {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.2s ease-out;
+}
+.cb-block.visible .cb-excl-dot {
+  opacity: 1; transform: scale(1);
+  transition: opacity 0.2s ease-out 0.22s,   /* forward: pop after line */
+              transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.22s;
+}
+
+/* ── [?] Unknown — purple, question mark ── */
+
+.cb-qmark {
+  fill: none; stroke: #8b5cf6; stroke-width: 2.5; stroke-linecap: round;
+  stroke-dasharray: 25; stroke-dashoffset: 25;
+  transition: stroke-dashoffset 0.2s ease-in;
+}
+.cb-qdot {
+  fill: #8b5cf6;
+  opacity: 0; transform: scale(0);
+  transform-box: fill-box; transform-origin: center;
+  transition: opacity 0.15s ease-in, transform 0.15s ease-in;
+}
+.cb-unknown.visible .cb-qmark {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.35s ease-out;
+}
+.cb-unknown.visible .cb-qdot {
+  opacity: 1; transform: scale(1);
+  transition: opacity 0.2s ease-out 0.35s,
+              transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s;
+}
+
+/* ── [=] Partial — blue, two horizontal bars ── */
+
+.cb-bar {
+  fill: none; stroke: #3b82f6; stroke-width: 2.8; stroke-linecap: round;
+}
+.cb-bar-1 {
+  stroke-dasharray: 13; stroke-dashoffset: 13;
+  transition: stroke-dashoffset 0.15s ease-in;
+}
+.cb-bar-2 {
+  stroke-dasharray: 13; stroke-dashoffset: 13;
+  transition: stroke-dashoffset 0.15s ease-in;
+}
+.cb-partial.visible .cb-bar-1 {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.18s ease-out;
+}
+.cb-partial.visible .cb-bar-2 {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.18s ease-out 0.14s;
+}
+
+/* ── [*] Star — gold, 5-point star path ── */
+
+.cb-star-path {
+  fill: none; stroke: #eab308; stroke-width: 2; stroke-linejoin: round;
+  stroke-dasharray: 68; stroke-dashoffset: 68;
+  transition: stroke-dashoffset 0.4s ease-in;
+}
+.cb-star.visible .cb-star-path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.5s ease-out;
+}

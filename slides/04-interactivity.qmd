@@ -1,0 +1,686 @@
+---
+title: "Interactivity"
+subtitle: "Fragments & auto-animate"
+---
+
+## Objectives
+
+::: {.incremental}
+- What are fragments and how do we use them
+- Making our own fragments
+- Match elements across slides with auto-animate
+:::
+
+# Fragments
+
+## What are fragments?
+
+The mechanism in revealjs that triggers something on the slides instead of advancing to the next slide
+
+## We have already seen fragments
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## Revealed one at a time
+
+::: {.incremental}
+- first
+- second
+- third
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/incremental.html#/revealed-one-at-a-time" title="The rendered incremental list"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+::: footer
+<https://slidecrafting-book.com/fragments>
+:::
+
+## The unit is `.fragment`
+
+It goes on anything: a block, a list item, a span, an empty div.
+
+::: {.codewindow .codewindow-dark .quarto width="70%"}
+my-deck.qmd
+
+````markdown
+Always here.
+
+::: {.fragment}
+A paragraph that waits for a click.
+:::
+
+[or just a few words]{.fragment}
+````
+:::
+
+::: {.fragment}
+Each one costs a click, in the order they appear.
+:::
+
+## An incremental list is many fragments
+
+:::::: columns
+
+::::: {.column width="48%"}
+
+:::: {.codewindow .codewindow-dark .quarto}
+my-deck.qmd
+
+````markdown
+::: {.incremental}
+- first
+- second
+- third
+:::
+````
+::::
+
+:::::
+
+::::: {.column width="48%"}
+
+:::: {.fragment}
+
+::: {.codewindow .codewindow-dark .quarto}
+my-deck.qmd
+
+````markdown
+::: {.fragment}
+- first
+:::
+::: {.fragment}
+- second
+:::
+::: {.fragment}
+- third
+:::
+````
+:::
+
+::::
+
+:::::
+
+::::::
+
+::: {.fragment}
+`.incremental` is a convenience. It hands a `.fragment` to every item in the list, and nothing more.
+:::
+
+## Fragments do more than appear
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+::: {.fragment .fade-in}
+fade-in
+:::
+
+::: {.fragment .highlight-red}
+highlight-red
+:::
+
+::: {.fragment .grow}
+grow
+:::
+
+::: {.fragment .semi-fade-out}
+semi-fade-out
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/fragment-classes.html#/more-than-appearing" title="The built-in fragment animations"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+::: footer
+<https://quarto.org/docs/presentations/revealjs/advanced.html#fragments>
+:::
+
+## Order is not position
+
+`data-fragment-index` says *when*, independent of where the element sits on the slide.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+::: {.fragment data-fragment-index="3"}
+shown third
+:::
+
+::: {.fragment data-fragment-index="1"}
+shown first
+:::
+
+::: {.fragment data-fragment-index="2"}
+shown second
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/fragment-classes.html#/out-of-order" title="Fragments revealed out of DOM order"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+# Writing your own fragment
+
+## Two ways in
+
+::: {.incremental}
+- **CSS**, which styles the *states* an element passes through
+- **JavaScript**, which listens for the *events* reveal fires
+:::
+
+::: {.fragment}
+we will start with the CSS way first
+:::
+
+## In CSS, a fragment has three states
+
+::: {.incremental}
+- **before** the click
+- the **current** fragment
+- **after**, once the next one has fired
+:::
+
+::: {.fragment}
+Style each state and you have a new fragment. No JavaScript needed.
+:::
+
+::: footer
+<https://slidecrafting-book.com/fragments>
+:::
+
+
+## The signature
+
+::: {.codewindow .codewindow-dark .scss width="70%"}
+styles.scss
+
+```scss
+.reveal .slides section .fragment.my-name {
+}
+
+.reveal .slides section .fragment.my-name.visible {
+}
+
+.reveal .slides section .fragment.my-name.current-fragment {
+}
+```
+:::
+
+::: {.fragment}
+The order matters: `.visible` and `.current-fragment` are applied at the same moment, so the cascade decides the winner.
+:::
+
+## Escaping the default
+
+Reveal hides a fragment until it fires:
+
+::: {.codewindow .codewindow-dark .css width="70%"}
+reveal.css
+
+```css
+opacity: 0;
+visibility: hidden;
+```
+:::
+
+::: {.fragment}
+Set both to `unset` when the element should be on screen the whole time and the fragment only changes it.
+:::
+
+## Highlight the current bullet
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .scss .fragment .stage-exit data-fragment-index="1"}
+styles.scss
+
+```scss
+.reveal .slides section .fragment.highlight-last {
+  opacity: 0; // default
+  visibility: hidden; // default
+  color: grey;
+}
+
+.reveal .slides section .fragment.highlight-last.visible {
+  color: grey;
+}
+
+.reveal .slides section .fragment.highlight-last.current-fragment {
+  color: #5500ff;
+}
+```
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/highlight-last.html#/highlight-the-current-item" title="An incremental list where the current item is highlighted"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+## You do not owe all three states
+
+No `.current-fragment` rule, so the highlight arrives and stays.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .scss .fragment .stage-exit data-fragment-index="1"}
+styles.scss
+
+```scss
+$theme-orange: #FFB81A;
+
+.reveal .slides section .fragment.hl-orange {
+  opacity: unset;
+  visibility: unset;
+
+  &.visible {
+    background-color: $theme-orange;
+  }
+}
+```
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/hl-simple.html#/highlight-and-stay" title="A phrase picking up an orange highlight"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+
+## Four highlighters, one loop
+
+`#{$name}` builds the class name, so four colors in a map become four fragment classes.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .scss .fragment .stage-exit data-fragment-index="1"}
+styles.scss
+
+```scss
+$colors: ("orange": #FFB81A, "yellow": #FFD571, "brown": #E2AE86, "pink": #FED7E1);
+
+@each $name, $color in $colors {
+  .reveal .slides section .fragment.hl-#{$name} {
+    opacity: unset;
+    visibility: unset;
+
+    &.visible {
+      background-color: lighten($color, 5%);
+    }
+
+    &.current-fragment {
+      background-color: $color;
+    }
+  }
+}
+```
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/hl-colors.html#/four-highlighters" title="Four phrases highlighted in four colors"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+::: footer
+<https://slidecrafting-book.com/fragments>
+:::
+
+## What is worth changing
+
+| | |
+|---|---|
+| `color` | the text itself |
+| `background` | the fill behind it |
+| `opacity` | fade something back without removing it |
+| `border` | an underline, a box, a bracket |
+| `transform` | scale, rotate, nudge |
+| `filter` | blur, grayscale, brightness |
+
+::: {.fragment}
+Every one of these animates on the compositor, so reveal can tween them for free.
+:::
+
+## Careful with size and position
+
+You can change anything, but `width`, `height`, `margin`, and `font-size` move the rest of the slide with them. That reflow reads as jitter.
+
+::: {.fragment}
+`transform: scale()` grows a thing without touching its neighbours. Reach for that instead.
+:::
+
+::: {.fragment}
+Color, background, and opacity are the safe playground.
+:::
+
+## That was all CSS
+
+Reveal marked the element with a class, and your stylesheet reacted. Nothing ran, and going backwards undid itself.
+
+::: {.incremental}
+- Three states, because they are three selectors
+- Whatever CSS cannot express is out of reach
+:::
+
+::: {.fragment}
+JavaScript has no states. It has two events, and undoing the change is your job.
+:::
+
+# Fragments in JavaScript
+
+## Reveal tells you when a fragment fires
+
+::: {.codewindow .codewindow-dark .js width="80%"}
+_fragments.html
+
+```js
+Reveal.on('fragmentshown', (event) => {
+  if (event.fragment.classList.contains("my-class")) {
+    // apply the change
+  }
+});
+
+Reveal.on('fragmenthidden', (event) => {
+  if (event.fragment.classList.contains("my-class")) {
+    // undo the change
+  }
+});
+```
+:::
+
+::: footer
+<https://slidecrafting-book.com/fragments>
+:::
+
+## Always write both directions
+
+::: {.incremental}
+- Presenters go backwards, in the middle of a talk, in front of people
+- `fragmenthidden` should be the exact inverse of `fragmentshown`
+- Scrolled down? Scroll back up. Switched a tab? Switch it back
+:::
+
+::: {.fragment}
+If a change cannot be undone, it makes a bad fragment.
+:::
+
+## Wire it up
+
+::: {.codewindow .codewindow-dark .quarto width="70%"}
+my-deck.qmd
+
+```yaml
+format:
+  revealjs:
+    include-after-body:
+      - "_fragments.html"
+```
+:::
+
+::: {.fragment}
+And `_fragments.html` is a `<script>` tag with your `Reveal.on()` calls inside.
+:::
+
+## An empty fragment still fires
+
+A fragment does not have to contain what it changes.
+
+::: {.codewindow .codewindow-dark .quarto width="70%"}
+my-deck.qmd
+
+```markdown
+::: {.fragment .color data-color="orange"}
+:::
+```
+:::
+
+::: {.fragment}
+`event.fragment.dataset.color` reads that value, so one class covers many slides.
+:::
+
+## Scroll a long output
+
+Reveal cannot scroll for you, but a fragment can.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .js .fragment .stage-exit data-fragment-index="1"}
+_scroll.html
+
+```js
+Reveal.on('fragmentshown', (event) => {
+  if (event.fragment.classList.contains("scroll")) {
+    Reveal
+      .getCurrentSlide()
+      .querySelector(".cell-output code")
+      .scrollTo({
+        top: 1000,
+        behavior: "smooth",
+      })
+  }
+});
+```
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/scroll-output.html#/a-long-output" title="A long code output scrolling itself when a fragment fires"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+
+::: footer
+<https://slidecrafting-book.com/fragments#scroll-output>
+:::
+
+## And the way back
+
+`fragmenthidden` is the same handler with `top: 0`.
+
+::: {.codewindow .codewindow-dark .js width="80%"}
+_scroll.html
+
+```js
+Reveal.on('fragmenthidden', (event) => {
+  if (event.fragment.classList.contains("scroll")) {
+    Reveal
+      .getCurrentSlide()
+      .querySelector(".cell-output code")
+      .scrollTo({
+        top: 0,
+        behavior: "smooth",
+      })
+  }
+});
+```
+:::
+
+::: {.fragment}
+Two numbers apart. That is what "the exact inverse" buys you.
+:::
+
+## We have been using one all this time
+
+Every embedded deck in this workshop is stepped by an empty fragment.
+
+::: {.codewindow .codewindow-dark .js width="80%"}
+advance-embedded.html
+
+```js
+Reveal
+  .getCurrentSlide()
+  .querySelector("iframe")
+  .contentWindow
+  .Reveal
+  .right()
+```
+:::
+
+::: {.fragment}
+`[]{.fragment .advance-slide}` in the source, one per step of the inner deck.
+:::
+
+::: footer
+<https://slidecrafting-book.com/fragments#advance-embedded-slides>
+:::
+
+## You will meet these again
+
+Many of the extensions in the next module are this same trick, packaged.
+
+::: {.incremental}
+- **roughnotation** circles and underlines a phrase on a click
+- **more-fragments** ships 90+ animations as fragment classes
+- **tabset** turns a Quarto tabset into keyboard-driven fragments
+:::
+
+::: {.fragment}
+Nothing in them you could not have written here. They just save you the writing.
+:::
+
+## How far this goes
+
+Eight empty fragments, one animation module, and a ggplot2 call comes apart layer by layer.
+
+<iframe src="examples/ggplot2-deconstructed.html#/section" title="A ggplot2 call taken apart layer by layer, one fragment at a time" class="toolframe" style="height: 460px;"></iframe>
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+::: footer
+<https://github.com/EmilHvitfeldt/tidy-animations>
+:::
+
+# Auto-animate
+
+## Matching elements across a slide break
+
+Mark two adjacent slides with `auto-animate=true` and reveal tweens the difference.
+
+::: {.incremental}
+- Position, size, color, corner radius, font size
+- Matching is automatic, but fragile
+- Give the pair the same `data-id` and it is not
+:::
+
+::: footer
+<https://slidecrafting-book.com/auto-animate>
+:::
+
+## One box, two slides
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## A single element {auto-animate=true}
+
+::: {data-id="box" style="width:140px; height:140px;
+  background:#5E7699; border-radius:14px;"}
+:::
+
+## The same data-id, changed {auto-animate=true}
+
+::: {data-id="box" style="width:520px; height:260px;
+  background:#FF9E8A; border-radius:48px;"}
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/auto-animate-basics.html#/a-single-element" title="A box growing and changing color between two slides"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+
+## More advanced example
+
+<iframe class="toolframe" src="examples/persistent.html#/a-way-of-working" title="Three colored panels regrouping across slides"></iframe>
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+## The pixel counting is over
+
+This used to be the reason nobody did it: every panel is four numbers, and you found them by rendering, squinting, and editing again.
+
+With AI agents this work is a little easier.
+
+::: {.incremental}
+- Describe the layout, let the model write the `data-id` divs and their coordinates
+- Paste the slide back and ask for the next state of it
+- You still judge whether the motion reads well
+:::
+
+# Your turn
+
+## Exercise
+
+::: {.incremental}
+1. Turn a list on one of your slides into an `.incremental` list
+2. Add `.highlight-last` and the SCSS for it, so the current bullet stands out
+3. Take one slide, copy it, mark both `auto-animate=true`, and change one thing
+4. Give the element you changed a `data-id` and watch the animation get steadier
+:::
+
+# Thank you
+
+Back to the [workshop materials](../materials/04-interactivity.qmd).

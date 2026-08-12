@@ -1,0 +1,21 @@
+---
+title: "My first deck"
+author: "Your Name"
+format: revealjs
+---
+
+## First slide
+
+Some content, with a **bold** word.
+
+- one bullet
+- another bullet
+
+## Second slide
+
+More content, and some code.
+
+```{r}
+#| echo: true
+summary(cars$speed)
+```

@@ -1,0 +1,16 @@
+# Shared options for all section slide decks
+format:
+  revealjs:
+    theme: [default, slides.scss]
+    author: "Emil Hvitfeldt"
+    incremental: false
+    slide-number: true
+    # `#` section slides nest `##` slides into vertical stacks; linear
+    # navigation keeps the deck one-dimensional (left/right only).
+    navigation-mode: linear
+    footer: "Slidecrafting Workshop"
+    include-after-body: advance-embedded.html
+
+revealjs-plugins:
+  - codewindow
+

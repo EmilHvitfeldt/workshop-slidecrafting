@@ -1,0 +1,10 @@
+---
+filters:
+  - roughnotation
+---
+
+## Annotations
+
+[Highlight me!]{.rn-fragment}
+
+[underlined phrase]{.rn-fragment rn-type=underline rn-color=red}

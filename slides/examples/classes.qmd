@@ -1,0 +1,15 @@
+---
+title: "My first deck"
+format:
+  revealjs:
+    theme: [default, classes.scss]
+---
+
+## A slide in the making
+
+Body text, and a [link](https://quarto.org) in the middle of it.
+
+The [important part]{.highlight} of the sentence.
+
+- one bullet
+- another bullet

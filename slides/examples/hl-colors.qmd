@@ -1,0 +1,12 @@
+---
+format:
+  revealjs:
+    theme: [default, hl-colors.scss]
+---
+
+## Four highlighters
+
+One loop, four classes: [orange]{.fragment .hl-orange}, [yellow]{.fragment .hl-yellow},
+[brown]{.fragment .hl-brown}, and [pink]{.fragment .hl-pink}.
+
+The current one is the strongest, and the ones behind it settle back a shade.

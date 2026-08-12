@@ -1,0 +1,11 @@
+---
+format: revealjs
+---
+
+## Revealed one at a time
+
+::: {.incremental}
+- first
+- second
+- third
+:::
