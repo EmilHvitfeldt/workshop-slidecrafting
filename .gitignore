@@ -1,6 +1,8 @@
 /.quarto/
 /_site/
-/_freeze/
+# Execute results in _freeze/ are committed so CI can render without R;
+# site_libs is regenerated on every render, so it stays out.
+/_freeze/site_libs/
 .Rproj.user
 .DS_Store
 *_files/

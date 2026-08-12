@@ -11,8 +11,8 @@ _quarto.yml        Website config (navbar + sidebar)
 index.qmd          Landing page
 schedule.qmd       Run of show
 setup.qmd          Prerequisites
-materials/         Six teaching modules (01–06)
-slides/            One reveal.js deck per section (01–06)
+materials/         Five teaching modules (01–05)
+slides/            One reveal.js deck per section (01–05)
 styles.scss        Website theme
 ```
 
@@ -21,6 +21,15 @@ styles.scss        Website theme
 ```bash
 quarto preview
 ```
+
+## Publishing
+
+Pushes to `main` render the site in GitHub Actions and publish it to the `gh-pages`
+branch at <https://emilhvitfeldt.github.io/workshop-slidecrafting>.
+
+CI does not install R. Executed chunks are replayed from the committed `_freeze/`
+directory, so after adding or editing a code chunk, render locally and commit the
+updated `_freeze/` files.
 
 ## Status
 
