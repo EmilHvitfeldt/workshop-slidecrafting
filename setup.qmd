@@ -1,0 +1,35 @@
+---
+title: "Setup"
+---
+
+Complete these steps **before** the workshop begins.
+
+## Software
+
+- [ ] Install [Quarto](https://quarto.org/docs/get-started/) (version 1.4 or later)
+- [ ] Install a recent version of [RStudio](https://posit.co/download/rstudio-desktop/) or [VS Code](https://code.visualstudio.com/) with the Quarto extension
+- [ ] (Optional) Install [R](https://cran.r-project.org/) and/or [Python](https://www.python.org/) for live code cells
+
+## Verify your install
+
+Run the following in a terminal to confirm Quarto is available:
+
+```bash
+quarto --version
+```
+
+## Workshop materials
+
+- [ ] Clone the workshop repository
+
+```bash
+git clone https://github.com/emilhvitfeldt/workshop-slidecrafting.git
+```
+
+## Render a test slide
+
+- [ ] Confirm you can render a reveal.js deck
+
+```bash
+quarto render slides/01-quarto.qmd
+```

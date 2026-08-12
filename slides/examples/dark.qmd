@@ -1,0 +1,19 @@
+---
+title: "My first deck"
+format:
+  revealjs:
+    theme: [default, dark.scss]
+---
+
+## A slide in the making
+
+Body text, and a [link](https://quarto.org) in the middle of it.
+
+Inline code like `summary(cars)` sits here.
+
+- one bullet
+- another bullet
+
+```r
+summary(cars$speed)
+```

@@ -1,0 +1,57 @@
+project:
+  type: website
+  resources:
+    - slides/
+
+website:
+  title: "Slidecrafting Workshop"
+  description: "A 2-hour hands-on workshop on making beautiful slides with reveal.js and Quarto"
+  site-url: "https://emilhvitfeldt.github.io/workshop-slidecrafting"
+  repo-url: https://github.com/emilhvitfeldt/workshop-slidecrafting
+  repo-actions: [edit, issue, source]
+  open-graph: true
+  page-navigation: true
+  navbar:
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Schedule"
+        href: schedule.qmd
+      - text: "Setup"
+        href: setup.qmd
+      - text: "Materials"
+        menu:
+          - materials/01-quarto.qmd
+          - materials/02-theming.qmd
+          - materials/03-content.qmd
+          - materials/04-interactivity.qmd
+          - materials/05-extensions.qmd
+    right:
+      - icon: github
+        aria-label: "GitHub"
+        href: https://github.com/emilhvitfeldt/workshop-slidecrafting
+  sidebar:
+    style: docked
+    contents:
+      - section: "Workshop"
+        contents:
+          - index.qmd
+          - schedule.qmd
+          - setup.qmd
+      - section: "Materials"
+        contents:
+          - materials/01-quarto.qmd
+          - materials/02-theming.qmd
+          - materials/03-content.qmd
+          - materials/04-interactivity.qmd
+          - materials/05-extensions.qmd
+
+format:
+  html:
+    toc: true
+    theme:
+      - cosmo
+      - styles.scss
+
+execute:
+  freeze: auto

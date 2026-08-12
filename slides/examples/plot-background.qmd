@@ -1,0 +1,24 @@
+---
+title: "Plot backgrounds"
+format:
+  revealjs:
+    theme: [default, plot-background.scss]
+---
+
+## White plot, off-white slide {#opaque}
+
+```{r}
+#| fig-width: 6
+#| fig-asp: 0.5
+plot(mpg ~ disp, data = mtcars, col = factor(am), pch = 16, bty = "n")
+```
+
+## Transparent plot {#transparent}
+
+```{r}
+#| fig-width: 6
+#| fig-asp: 0.5
+#| dev: png
+#| dev.args: !expr list(bg = "transparent")
+plot(mpg ~ disp, data = mtcars, col = factor(am), pch = 16, bty = "n")
+```

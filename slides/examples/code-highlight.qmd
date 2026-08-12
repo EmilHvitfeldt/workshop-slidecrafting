@@ -1,0 +1,13 @@
+---
+title: "Code highlighting"
+format: revealjs
+---
+
+## Line by line {#line-by-line}
+
+```{.r code-line-numbers="|1|2-3|4"}
+library(ggplot2)
+mtcars |>
+  ggplot(aes(mpg, disp)) +
+  geom_point()
+```

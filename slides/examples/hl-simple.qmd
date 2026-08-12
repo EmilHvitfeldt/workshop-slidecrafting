@@ -1,0 +1,10 @@
+---
+format:
+  revealjs:
+    theme: [default, hl-simple.scss]
+---
+
+## Highlight and stay
+
+A fragment does not have to appear. It can already be on screen and simply
+[pick up a highlight]{.fragment .hl-orange} when its turn comes.

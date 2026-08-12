@@ -1,0 +1,12 @@
+---
+revealjs-plugins:
+  - editable
+filters:
+  - editable
+---
+
+## Move me around
+
+Drag this text, resize it, or retype it.
+
+![](images/tim-marshall.jpg){width="400"}

@@ -1,0 +1,17 @@
+$schema: https://m.canouil.dev/quarto-wizard/assets/schema/v1/extension-schema.json
+
+classes:
+  chat:
+    description: "Container for a chat bubble conversation. Wrap all bubbles in this div."
+  bubble-right:
+    description: "Right-aligned chat bubble (the primary speaker)."
+  bubble-left:
+    description: "Left-aligned chat bubble (participant 1)."
+  bubble-left-2:
+    description: "Left-aligned chat bubble (participant 2, distinct colour)."
+  bubble-left-3:
+    description: "Left-aligned chat bubble (participant 3, distinct colour)."
+  typing:
+    description: "Show a typing indicator before the text is revealed. Combine with a bubble class and .fragment."
+  reaction:
+    description: "Emoji reaction attached to the preceding bubble. Shown/hidden as a RevealJS fragment."

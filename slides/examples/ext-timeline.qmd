@@ -1,0 +1,18 @@
+---
+filters:
+  - timeline
+---
+
+## How it went
+
+::: timeline
+::: {.event data-label="2020"}
+**Project Started**
+:::
+::: {.event data-label="2021"}
+**First Release**
+:::
+::: {.event data-label="2024"}
+**Version 2.0**
+:::
+:::

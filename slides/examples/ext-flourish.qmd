@@ -1,0 +1,13 @@
+---
+filters:
+  - flourish
+---
+
+## Picking out a word
+
+```{r}
+#| flourish:
+#| - target: "mean"
+#| echo: true
+mean(mtcars$mpg)
+```

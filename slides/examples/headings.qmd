@@ -1,0 +1,20 @@
+---
+title: "Headings"
+format: revealjs
+---
+
+# Part one
+
+## A titled slide
+
+Content.
+
+## Another titled slide
+
+More content.
+
+# Part two
+
+## A slide in part two
+
+Even more content.

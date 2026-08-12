@@ -1,0 +1,488 @@
+---
+title: "Extensions & wrap-up"
+subtitle: "Sprucing up your slides"
+---
+
+## Objectives
+
+::: {.incremental}
+- Install and use a Quarto reveal.js extension
+- Know where to find more extensions
+- Leave with next steps and resources
+:::
+
+# What is an extension?
+
+## Someone else already solved it
+
+::: {.incremental}
+- An extension is a folder of Lua, JavaScript, and CSS that Quarto knows how to load
+- It ships as a GitHub repo, and you install it by name
+- Nothing to configure globally, it lives inside your project
+:::
+
+::: {.fragment}
+Every styled code block you have seen today came from one.
+:::
+
+## Installing
+
+::: {.codewindow .codewindow-dark width="70%"}
+Terminal
+
+```bash
+quarto add emilhvitfeldt/quarto-revealjs-codewindow
+```
+:::
+
+::: {.incremental}
+- Downloads into `_extensions/` next to your `.qmd`
+- Commit that folder, it is part of the project
+:::
+
+## Codewindow
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+revealjs-plugins:
+  - codewindow
+---
+
+## Some code
+
+::: {.codewindow .r}
+analysis.R
+
+```r
+mtcars |>
+  group_by(cyl) |>
+  summarize(mean_mpg = mean(mpg))
+```
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/codewindow.html#/some-code" title="The rendered codewindow slide"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+
+::: footer
+<https://slidecrafting-book.com/codewindow>
+:::
+
+## Fontawesome
+
+::: {.codewindow .codewindow-dark .quarto width="70%"}
+my-deck.qmd
+
+```markdown
+Find me on {{{< fa brands github >}}} GitHub.
+
+{{{< fa triangle-exclamation >}}} Watch out for this.
+```
+:::
+
+::: {.fragment}
+Find me on {{< fa brands github >}} GitHub.
+
+{{< fa triangle-exclamation >}} Watch out for this.
+:::
+
+::: footer
+<https://github.com/quarto-ext/fontawesome>
+:::
+
+## roughnotation
+
+Hand-drawn circles, underlines, and highlights, animated on a keypress.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+filters:
+  - roughnotation
+---
+
+## Annotations
+
+[Highlight me!]{.rn-fragment}
+
+[underlined phrase]{.rn-fragment rn-type=underline rn-color=red}
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/ext-roughnotation.html#/annotations" title="The rendered roughnotation slide"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+::: footer
+<https://emilhvitfeldt.github.io/quarto-roughnotation/>
+:::
+
+## checklist-fragments
+
+A task list that draws itself in, one item per keypress.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+filters:
+  - checklist-fragments
+---
+
+## Where we got to
+
+::: checklist
+- [/] Ship the feature
+- [-] Missed the deadline
+- [~] Tests still running
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/ext-checklist.html#/where-we-got-to" title="The rendered checklist slide"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+::: footer
+<https://github.com/EmilHvitfeldt/quarto-revealjs-checklist-fragments>
+:::
+
+## chatbubbles
+
+iOS-style messages, revealed one at a time.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .codewindow-scroll .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+revealjs-plugins:
+  - chat-bubbles
+---
+
+## The invite
+
+::: {.chat}
+::: {.bubble-right}
+Hey, are you coming tonight?
+:::
+
+::: {.fragment .bubble-left}
+Yeah! What time does it start?
+:::
+
+::: {.fragment .bubble-right}
+Doors open at 7
+:::
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/ext-chatbubbles.html#/the-invite" title="The rendered chat bubbles slide"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+::: footer
+<https://github.com/EmilHvitfeldt/quarto-revealjs-chat-bubbles>
+:::
+
+## timeline
+
+Events on a line, horizontal or vertical, panning as you step through them.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .codewindow-scroll .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+filters:
+  - timeline
+---
+
+## How it went
+
+::: timeline
+::: {.event data-label="2020"}
+**Project Started**
+:::
+::: {.event data-label="2021"}
+**First Release**
+:::
+::: {.event data-label="2024"}
+**Version 2.0**
+:::
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/ext-timeline.html#/how-it-went" title="The rendered timeline slide"></iframe>
+:::
+
+::::
+
+::: footer
+<https://emilhvitfeldt.github.io/quarto-timeline/>
+:::
+
+## shapes
+
+Circles, hexagons, stars, and more, as divs that hold real content.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+filters:
+  - shapes
+---
+
+## Shapes
+
+::: {.shape-circle fill="blue"}
+Hello
+:::
+
+::: {.shape-hexagon fill="none" stroke="red" .shape-lg}
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/ext-shapes.html#/shapes" title="The rendered shapes slide"></iframe>
+:::
+
+::::
+
+::: footer
+<https://emilhvitfeldt.github.io/quarto-shapes/>
+:::
+
+## tegaki
+
+Text that writes itself out in handwriting.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+filters:
+  - tegaki
+---
+
+## Handwriting
+
+[Hello, World!]{.tegaki .fragment}
+
+[Hello!]{.tegaki font="Parisienne" size="6" duration="2"}
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/ext-tegaki.html#/handwriting" title="The rendered tegaki slide"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+
+::: footer
+<https://github.com/EmilHvitfeldt/quarto-tegaki>
+:::
+
+## editable
+
+Move, resize, restyle, and retype anything on a rendered slide, then save it back to the source.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+revealjs-plugins:
+  - editable
+filters:
+  - editable
+---
+
+## Move me around
+
+Drag this text, resize it, or retype it.
+
+![](images/tim-marshall.jpg){width="400"}
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/ext-editable.html#/move-me-around" title="The rendered editable slide"></iframe>
+:::
+
+::::
+
+::: footer
+<https://emilhvitfeldt.github.io/quarto-revealjs-editable/>
+:::
+
+# Not just mine
+
+## reveal-auto-agenda
+
+Builds an agenda slide from your sections, and repeats it between them.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+filters:
+  - reveal-auto-agenda
+---
+
+# Collecting the data
+
+## A slide
+
+# Fitting the model
+
+## Another slide
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/ext-auto-agenda.html#/collecting-the-data" title="The rendered auto-agenda slide"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+::: {.fragment}
+By Andrie de Vries.
+:::
+
+::: footer
+<https://github.com/andrie/reveal-auto-agenda>
+:::
+
+## flourish
+
+Styles individual words *inside* a code chunk: highlighted, masked, or underlined.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+filters:
+  - flourish
+---
+
+## Picking out a word
+
+```{{r}}
+#| flourish:
+#| - target: "mean"
+#| echo: true
+mean(mtcars$mpg)
+```
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/ext-flourish.html#/picking-out-a-word" title="The rendered flourish slide"></iframe>
+:::
+
+::::
+
+::: {.fragment}
+By Kelly Bodwin and Visruth Srimath Kandali. Pair it with roughnotation to annotate code.
+:::
+
+::: footer
+<https://github.com/kbodwin/flourish>
+:::
+
+## The registry
+
+[quarto-extensions](https://github.com/mcanouil/quarto-extensions) lists what the community has built.
+
+::: {.incremental}
+- Searchable listing, one row per extension
+- Badges tell you whether something is stable, experimental, or abandoned
+- Adding your own is a one-line pull request
+:::
+
+# Wrap-up
+
+## What we covered
+
+::: {.incremental}
+1. The anatomy of a `.qmd` deck
+2. Theming with SCSS variables
+3. Content: layout, images, code
+4. Interactivity: fragments and auto-animate
+5. Extensions
+:::
+
+## Where to go next
+
+::: {.incremental}
+- The book: [slidecrafting-book.com](https://slidecrafting-book.com)
+- Quarto's reveal.js reference: [quarto.org](https://quarto.org/docs/reference/formats/presentations/revealjs.html)
+- "Steal" from decks you like, the source is always a click away
+:::
+
+# Thank you
+
+Back to the [workshop materials](../materials/05-extensions.qmd).

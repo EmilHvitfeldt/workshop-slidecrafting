@@ -1,0 +1,16 @@
+---
+title: "Divs and spans"
+format: revealjs
+---
+
+## Highlights
+
+Some [red text]{style="color: #b22222;"} in a sentence.
+
+::: {.smaller}
+This whole block is smaller.
+:::
+
+::: {style="text-align: center;"}
+And this one is centered.
+:::

@@ -1,0 +1,51 @@
+{
+  "Chat Conversation": {
+    "prefix": "chat",
+    "body": [
+      "::: {.chat}",
+      "::: {.bubble-right}",
+      "${1:Message}",
+      ":::",
+      "",
+      "::: {.fragment .bubble-left}",
+      "${2:Reply}",
+      ":::",
+      ":::"
+    ],
+    "description": "Insert a basic two-bubble chat conversation."
+  },
+  "Chat Bubble Right": {
+    "prefix": "chat-right",
+    "body": [
+      "::: {.fragment .bubble-right}",
+      "${1:Message}",
+      ":::"
+    ],
+    "description": "Insert a right-aligned chat bubble fragment."
+  },
+  "Chat Bubble Left": {
+    "prefix": "chat-left",
+    "body": [
+      "::: {.fragment .bubble-left}",
+      "${1:Message}",
+      ":::"
+    ],
+    "description": "Insert a left-aligned chat bubble fragment."
+  },
+  "Chat Typing Bubble": {
+    "prefix": "chat-typing",
+    "body": [
+      "::: {.fragment .bubble-${1|right,left,left-2,left-3|} .typing}",
+      "${2:Message}",
+      ":::"
+    ],
+    "description": "Insert a chat bubble with typing indicator animation."
+  },
+  "Chat Reaction": {
+    "prefix": "chat-reaction",
+    "body": [
+      "[${1:👍}]{.fragment .reaction}"
+    ],
+    "description": "Insert an emoji reaction attached to the preceding bubble."
+  }
+}

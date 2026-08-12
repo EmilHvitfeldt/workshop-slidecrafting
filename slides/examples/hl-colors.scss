@@ -1,0 +1,17 @@
+/*-- scss:rules --*/
+$colors: ("orange": #FFB81A, "yellow": #FFD571, "brown": #E2AE86, "pink": #FED7E1);
+
+@each $name, $color in $colors {
+  .reveal .slides section .fragment.hl-#{$name} {
+    opacity: unset;
+    visibility: unset;
+
+    &.visible {
+      background-color: lighten($color, 5%);
+    }
+
+    &.current-fragment {
+      background-color: $color;
+    }
+  }
+}

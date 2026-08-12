@@ -1,0 +1,18 @@
+---
+title: "01 · What is Quarto?"
+subtitle: "The anatomy of a reveal.js deck"
+---
+
+::::{.slide-embed}
+<iframe class="slide-deck" src="../slides/01-quarto.html" title="Section slides" loading="lazy"></iframe>
+::::
+
+::::{.slide-links}
+[⛶ Fullscreen](../slides/01-quarto.html){target="_blank"} [⟨∕⟩ Source](https://github.com/emilhvitfeldt/workshop-slidecrafting/blob/main/slides/01-quarto.qmd){target="_blank"}
+::::
+
+## Learning objectives
+
+- Understand the structure of a `.qmd` reveal.js file
+- Know how slides and section slides are created
+- Read and set common YAML options

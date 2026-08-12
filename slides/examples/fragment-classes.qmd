@@ -1,0 +1,35 @@
+---
+format: revealjs
+---
+
+## More than appearing
+
+::: {.fragment .fade-in}
+fade-in
+:::
+
+::: {.fragment .highlight-red}
+highlight-red
+:::
+
+::: {.fragment .grow}
+grow
+:::
+
+::: {.fragment .semi-fade-out}
+semi-fade-out
+:::
+
+## Out of order
+
+::: {.fragment data-fragment-index="3"}
+shown third
+:::
+
+::: {.fragment data-fragment-index="1"}
+shown first
+:::
+
+::: {.fragment data-fragment-index="2"}
+shown second
+:::

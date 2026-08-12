@@ -1,0 +1,18 @@
+---
+title: "Columns"
+format: revealjs
+---
+
+## Two columns
+
+:::: {.columns}
+
+::: {.column width="50%"}
+Left side.
+:::
+
+::: {.column width="50%"}
+Right side.
+:::
+
+::::

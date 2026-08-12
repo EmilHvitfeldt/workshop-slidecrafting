@@ -1,0 +1,422 @@
+---
+title: "What is Quarto?"
+subtitle: "The anatomy of a reveal.js deck"
+---
+
+## Objectives
+
+::: {.incremental}
+- Understand the structure of a `.qmd` reveal.js file
+- Know how slides and section slides are created
+- Read and set common YAML options
+- Use divs and spans to attach attributes to content
+:::
+
+## This workshop has a book
+
+[slidecrafting-book.com](https://slidecrafting-book.com)
+
+Everything today is in there, in more detail.
+
+# Why Quarto + reveal.js?
+
+## Reproducible
+
+We get all the goodness from quarto,
+
+Code cells run at render time:
+
+::: {.codewindow .codewindow-dark .quarto width="80%"}
+my-deck.qmd
+
+````markdown
+```{{r}}
+#| echo: false
+plot(1:10)
+```
+````
+:::
+
+Figures and tables regenerate from the data instead of being pasted screenshots,
+HUGE when new data comes in.
+
+## HTML-native
+
+A rendered deck *is* a web page.
+
+Animation, video, iframes, links, and anything else the web can do.
+
+## And when someone insists
+
+The same source renders to PDF or PowerPoint.
+
+Except for html specific things like animation and interactivity.
+
+# Your first deck
+
+## A minimal deck
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+---
+title: "My first deck"
+author: "Your Name"
+format: revealjs
+---
+
+## First slide
+
+Some content, with a **bold** word.
+
+- one bullet
+- another bullet
+
+## Second slide
+
+```{{r}}
+#| echo: true
+summary(cars$speed)
+```
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/minimal.html#/first-slide" title="The rendered minimal deck"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+
+## Render it
+
+::: {.codewindow .codewindow-dark width="70%"}
+Terminal
+
+```bash
+quarto render my-deck.qmd
+```
+:::
+
+Produces `my-deck.html`.
+
+If you are in a repo with `index.qmd` only then `quarto render` will find it
+
+## Better: preview it
+
+::: {.codewindow .codewindow-dark width="70%"}
+Terminal
+
+```bash
+quarto preview my-deck.qmd
+```
+:::
+
+Re-renders and refreshes the browser on every save.
+
+RStudio and Positron will help you here.
+
+## Presenting shortcuts
+
+| Key | Action |
+|-----|--------|
+| <kbd>→</kbd> / <kbd>←</kbd> | next / previous slide |
+| <kbd>f</kbd> | fullscreen |
+| <kbd>s</kbd> | speaker view |
+| <kbd>o</kbd> | overview of all slides |
+| <kbd>?</kbd> | all shortcuts |
+
+# The YAML header
+
+## The YAML header
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+```yaml
+---
+title: "My first deck"
+subtitle: "With some options"
+author: "Your Name"
+date: today
+format:
+  revealjs:
+    slide-number: true
+    progress: true
+    center: false
+    incremental: false
+    footer: "My conference talk"
+---
+```
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/yaml-options.html" title="The deck rendered with those options"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+
+::: footer
+<https://quarto.org/docs/reference/formats/presentations/revealjs.html>
+:::
+
+## Options worth knowing on day one
+
+::: {.incremental}
+- `theme` a built-in theme, your own SCSS, or both: `[default, styles.scss]`
+- `width` / `height` the canvas you design against, `1280` x `720`
+- `echo` show code or not; `false` by default, turn it on where it earns the space
+- `code-line-numbers` `false` to hide code line numbers
+- `pagetitle` what the browser tab says
+:::
+
+::: footer
+<https://quarto.org/docs/reference/formats/presentations/revealjs.html>
+:::
+
+# Slides, divs, and spans
+
+## Structure comes from headings
+
+::: {.incremental}
+- `##` a new slide, heading becomes the title
+- `#` a **section** slide, a title-only divider
+:::
+
+## Structure comes from headings
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+# Part one
+
+## A titled slide
+
+Content.
+
+## Another titled slide
+
+More content.
+
+# Part two
+
+## A slide in part two
+
+Even more content.
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/headings.html#/part-one" title="The rendered heading structure"></iframe>
+:::
+
+::::
+
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .advance-slide}
+[]{.fragment .menu-embedded}
+
+## Divs and spans
+
+Markdown alone cannot say "make this part special". Quarto adds two ways to wrap content and attach attributes to it.
+
+::: {.incremental}
+- a **div** wraps one or more blocks: paragraphs, lists, images, code
+- a **span** wraps a piece of text inside a paragraph
+:::
+
+::: {.fragment}
+Almost every feature in this workshop is one of these two with a different class on it.
+:::
+
+## The syntax
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+[Div]{.syntax-label}
+
+::: {.codewindow .codewindow-dark .quarto}
+my-deck.qmd
+
+````markdown
+::: {.center}
+Everything here
+is inside the div.
+:::
+````
+:::
+
+Opening fence, attributes, content, closing fence.
+::::
+
+:::: {.column width="50%"}
+[Span]{.syntax-label}
+
+::: {.codewindow .codewindow-dark .quarto}
+my-deck.qmd
+
+````markdown
+The [important part]{.highlight}
+of the sentence.
+````
+:::
+
+Text in `[]`, attributes in `{}`, no space between them.
+::::
+
+:::::
+
+## What goes in the braces
+
+::: {.codewindow .codewindow-dark .quarto width="70%"}
+my-deck.qmd
+
+````markdown
+::: {#summary .smaller .fragment style="color: red;"}
+Content.
+:::
+````
+:::
+
+::: {.incremental}
+- `.name` a **class**, the usual way to reach a div from CSS
+- `#name` an **id**, unique on the page
+- `key="value"` any other attribute, `style=` included
+:::
+
+::: {.fragment}
+Order does not matter, and you can use as many as you like.
+:::
+
+## Nesting: count your colons
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+::: {.codewindow .codewindow-dark .quarto}
+Works
+
+````markdown
+:::: {.outer}
+
+::: {.inner}
+Content.
+:::
+
+::::
+````
+:::
+::::
+
+:::: {.column width="50%"}
+::: {.codewindow .codewindow-dark .quarto}
+Breaks
+
+````markdown
+::: {.outer}
+
+::: {.inner}
+Content.
+:::
+
+:::
+````
+:::
+::::
+
+:::::
+
+::: {.fragment}
+The outer fence needs *more* colons than the inner one, otherwise Pandoc closes the wrong div. Three is only the minimum.
+:::
+
+## Divs and spans in action
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## Highlights
+
+Some [red text]{style="color: #b22222;"} in a sentence.
+
+::: {.smaller}
+This whole block is smaller.
+:::
+
+::: {style="text-align: center;"}
+And this one is centered.
+:::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/divs-spans.html#/highlights" title="The rendered divs and spans slide"></iframe>
+:::
+
+::::
+
+## Columns
+
+Columns are just nested divs: a `.columns` div holding `.column` divs.
+
+:::: {.stage}
+
+::: {.codewindow .codewindow-dark .quarto .fragment .stage-exit data-fragment-index="1"}
+my-deck.qmd
+
+````markdown
+## Two columns
+
+:::: {.columns}
+
+::: {.column width="50%"}
+Left side.
+:::
+
+::: {.column width="50%"}
+Right side.
+:::
+
+::::
+````
+:::
+
+::: {.fragment .stage-enter data-fragment-index="1"}
+<iframe src="examples/columns.html#/two-columns" title="The rendered two-column slide"></iframe>
+:::
+
+::::
+
+# Your turn
+
+## Exercise
+
+::: {.incremental}
+1. Create `my-deck.qmd` with `format: revealjs`
+2. Add a title slide, one `#` section slide, and two `##` slides
+3. `quarto preview my-deck.qmd`, then press <kbd>o</kbd>
+4. Deliberately overfill a slide: five bullets, each a full sentence.
+   Look at it. Then split it so each slide carries one idea.
+:::
+
+# Thank you
+
+Back to the [workshop materials](../materials/01-quarto.qmd).

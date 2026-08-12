@@ -1,0 +1,59 @@
+---
+format:
+  revealjs:
+    include-after-body:
+      - "_scroll.html"
+---
+
+## A long output
+
+::: {.cell-output}
+```r
+#> # A tibble: 40 x 3
+#>    island       species     bill_length_mm
+#>    <fct>        <fct>                <dbl>
+#>  1 Torgersen    Adelie                39.1
+#>  2 Torgersen    Adelie                39.5
+#>  3 Torgersen    Adelie                40.3
+#>  4 Torgersen    Adelie                36.7
+#>  5 Torgersen    Adelie                39.3
+#>  6 Torgersen    Adelie                38.9
+#>  7 Torgersen    Adelie                39.2
+#>  8 Torgersen    Adelie                34.1
+#>  9 Torgersen    Adelie                42
+#> 10 Torgersen    Adelie                37.8
+#> 11 Biscoe       Adelie                37.8
+#> 12 Biscoe       Adelie                41.1
+#> 13 Biscoe       Adelie                38.6
+#> 14 Biscoe       Adelie                34.6
+#> 15 Biscoe       Adelie                36.6
+#> 16 Biscoe       Adelie                38.7
+#> 17 Biscoe       Adelie                42.5
+#> 18 Biscoe       Adelie                34.4
+#> 19 Biscoe       Adelie                46
+#> 20 Dream        Adelie                37.8
+#> 21 Dream        Chinstrap             46.5
+#> 22 Dream        Chinstrap             50
+#> 23 Dream        Chinstrap             51.3
+#> 24 Dream        Chinstrap             45.4
+#> 25 Dream        Chinstrap             52.7
+#> 26 Dream        Chinstrap             45.2
+#> 27 Dream        Chinstrap             46.1
+#> 28 Dream        Chinstrap             51.3
+#> 29 Dream        Chinstrap             46
+#> 30 Dream        Chinstrap             51.3
+#> 31 Biscoe       Gentoo                46.1
+#> 32 Biscoe       Gentoo                50
+#> 33 Biscoe       Gentoo                48.7
+#> 34 Biscoe       Gentoo                50
+#> 35 Biscoe       Gentoo                47.6
+#> 36 Biscoe       Gentoo                46.5
+#> 37 Biscoe       Gentoo                45.4
+#> 38 Biscoe       Gentoo                46.7
+#> 39 Biscoe       Gentoo                43.3
+#> 40 Biscoe       Gentoo                46.8
+```
+:::
+
+::: {.fragment .scroll}
+:::

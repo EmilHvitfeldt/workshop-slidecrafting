@@ -1,0 +1,31 @@
+---
+title: "ggplot2, deconstructed"
+format:
+  revealjs:
+    css: gd/css/demos.css
+    center: true
+    width: 1280
+    height: 720
+    transition: fade
+    include-in-header:
+      text: |
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+    include-after-body:
+      - gd/js/infra.html
+      - gd/js/ggplot2-deconstructed.html
+---
+
+## {.gd-slide}
+
+::: {.gd-stage-wrap}
+<div id="gd-stage"></div>
+:::
+
+[]{.fragment .gd-frag id="gd-lay"}
+[]{.fragment .gd-frag id="gd-explode"}
+[]{.fragment .gd-frag id="gd-focus-coord"}
+[]{.fragment .gd-frag id="gd-focus-points"}
+[]{.fragment .gd-frag id="gd-focus-smooth"}
+[]{.fragment .gd-frag id="gd-focus-labs"}
+[]{.fragment .gd-frag id="gd-collapse"}
+[]{.fragment .gd-frag id="gd-unrotate"}

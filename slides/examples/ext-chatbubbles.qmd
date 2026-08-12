@@ -1,0 +1,20 @@
+---
+revealjs-plugins:
+  - chat-bubbles
+---
+
+## The invite
+
+::: {.chat}
+::: {.bubble-right}
+Hey, are you coming tonight?
+:::
+
+::: {.fragment .bubble-left}
+Yeah! What time does it start?
+:::
+
+::: {.fragment .bubble-right}
+Doors open at 7
+:::
+:::

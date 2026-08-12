@@ -1,0 +1,16 @@
+$schema: "https://raw.githubusercontent.com/mcanouil/quarto-wizard/main/schema/schema-1.0.json"
+
+classes:
+  tegaki:
+    description: "Render text with an animated handwriting effect using the tegaki library."
+    attributes:
+      - name: font
+        type: string
+        description: "Built-in font name for the handwriting animation."
+        enum: [Caveat, Italianno, Tangerine, Parisienne]
+      - name: size
+        type: number
+        description: "Font size in em units (default: 5.15)."
+      - name: duration
+        type: number
+        description: "Animation duration in seconds (default: 0.75)."

@@ -1,0 +1,17 @@
+{
+  "tegaki:basic": {
+    "prefix": "tegaki:basic",
+    "description": "Inline text with animated handwriting effect.",
+    "body": "[${1:Hello, World!}]{.tegaki}"
+  },
+  "tegaki:fragment": {
+    "prefix": "tegaki:fragment",
+    "description": "Animated handwriting triggered as a RevealJS fragment.",
+    "body": "[${1:Hello, World!}]{.tegaki .fragment}"
+  },
+  "tegaki:styled": {
+    "prefix": "tegaki:styled",
+    "description": "Animated handwriting with custom font, size, and duration.",
+    "body": "[${1:Hello, World!}]{.tegaki font=\"${2|Caveat,Italianno,Tangerine,Parisienne|}\" size=\"${3:5}\" duration=\"${4:1}\"}"
+  }
+}

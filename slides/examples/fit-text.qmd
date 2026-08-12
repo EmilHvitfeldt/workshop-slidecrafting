@@ -1,0 +1,28 @@
+---
+title: "Fit text"
+format: revealjs
+---
+
+## {#one-line .center}
+
+::: r-fit-text
+This fits perfectly!
+:::
+
+## {#one-block .center}
+
+::: r-fit-text
+This fits perfectly!
+
+On two lines
+:::
+
+## {#two-blocks .center}
+
+::: r-fit-text
+This fits perfectly!
+:::
+
+::: r-fit-text
+On two lines
+:::

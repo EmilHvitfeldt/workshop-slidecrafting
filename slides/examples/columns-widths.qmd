@@ -1,0 +1,63 @@
+---
+title: "Columns"
+format: revealjs
+---
+
+## Uneven columns
+
+::: {.columns}
+
+::: {.column width="40%"}
+Left column
+:::
+
+::: {.column width="60%"}
+Right column
+:::
+
+:::
+
+## A styled column
+
+::: {.columns}
+
+::: {.column width="50%"}
+Left column
+:::
+
+::: {.column width="50%" style="text-align: right;"}
+Right column
+:::
+
+:::
+
+## Three columns
+
+::: {.columns}
+
+::: {.column width="33%"}
+1st column
+:::
+
+::: {.column width="33%"}
+2nd column
+:::
+
+::: {.column width="33%"}
+3rd column
+:::
+
+:::
+
+## An empty column
+
+::: {.columns}
+
+::: {.column width="30%"}
+:::
+
+::: {.column width="70%"}
+Only right side
+:::
+
+:::

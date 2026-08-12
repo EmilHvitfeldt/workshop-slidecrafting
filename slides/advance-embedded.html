@@ -1,0 +1,78 @@
+<script>
+  // Step an embedded deck from the outer deck, so a clicker or the arrow keys
+  // advance the iframe without clicking into it. Any `.fragment.advance-slide`
+  // element on a slide moves the iframe on that slide forward one step.
+  // See https://slidecrafting-book.com/fragments#advance-embedded-slides
+  (function () {
+    function embeddedFrame() {
+      return Reveal.getCurrentSlide().querySelector("iframe");
+    }
+
+    function embeddedReveal() {
+      var frame = embeddedFrame();
+      // A cross-origin iframe throws on the `Reveal` property access.
+      try {
+        return frame && frame.contentWindow && frame.contentWindow.Reveal;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Same-origin decks get driven directly. A cross-origin deck cannot be
+    // touched that way, so fall back to reveal's postMessage API, which is on
+    // by default and takes the same method names.
+    function step(method) {
+      var inner = embeddedReveal();
+      if (inner) {
+        inner[method]();
+        return;
+      }
+      var frame = embeddedFrame();
+      if (!frame || !frame.contentWindow) return;
+      frame.contentWindow.postMessage(
+        JSON.stringify({ method: method, args: [] }),
+        "*"
+      );
+    }
+
+    function embeddedMenu() {
+      var inner = embeddedReveal();
+      var menu = inner && inner.getPlugin && inner.getPlugin("menu");
+      return menu && menu.openMenu ? menu : null;
+    }
+
+    function attach() {
+      Reveal.on("fragmentshown", function (event) {
+        if (!event.fragment.classList.contains("advance-slide")) return;
+        step("next");
+      });
+
+      Reveal.on("fragmenthidden", function (event) {
+        if (!event.fragment.classList.contains("advance-slide")) return;
+        step("prev");
+      });
+
+      // Same idea for the embedded deck's slide menu: a `.fragment.menu-embedded`
+      // opens it on the way forward and closes it on the way back.
+      Reveal.on("fragmentshown", function (event) {
+        if (!event.fragment.classList.contains("menu-embedded")) return;
+        var menu = embeddedMenu();
+        if (menu) menu.openMenu();
+      });
+
+      Reveal.on("fragmenthidden", function (event) {
+        if (!event.fragment.classList.contains("menu-embedded")) return;
+        var menu = embeddedMenu();
+        if (menu) menu.closeMenu();
+      });
+    }
+
+    // The reveal instance is not guaranteed to exist when this runs.
+    var wait = setInterval(function () {
+      if (window.Reveal && Reveal.isReady && Reveal.isReady()) {
+        clearInterval(wait);
+        attach();
+      }
+    }, 100);
+  })();
+</script>

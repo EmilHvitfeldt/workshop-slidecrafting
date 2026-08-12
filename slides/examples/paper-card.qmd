@@ -1,0 +1,14 @@
+---
+title: "Paper card"
+format:
+  revealjs:
+    theme: [default, paper-card.scss]
+---
+
+## My slide {#colored .paper background-color="#ffe83e"}
+
+Content goes here, cleanly inside the card.
+
+## My slide {#photo .paper background-image="images/galen-crout.jpg" background-size="cover"}
+
+Content goes here, cleanly inside the card.

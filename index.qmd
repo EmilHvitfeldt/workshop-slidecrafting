@@ -1,0 +1,33 @@
+---
+title: "Slidecrafting Workshop"
+subtitle: "Making beautiful slides with reveal.js and Quarto"
+author: "Emil Hvitfeldt"
+---
+
+## Welcome
+
+Welcome to the **Slidecrafting** workshop! Over the next two hours we will learn how to
+craft functional and aesthetically pleasing slides using [Quarto](https://quarto.org/)
+reveal.js presentations.
+
+::: {.callout-note}
+This workshop is a hands-on companion to the [Slidecrafting book](https://slidecrafting-book.com).
+:::
+
+## What you will learn
+
+- How a reveal.js `.qmd` file is put together, and the YAML options worth knowing
+- How to theme slides with sass variables for fonts, colors, and sizes
+- How to position elements on a slide and modify the standard ones
+- How to use fragments, write your own, and match elements with auto-animate
+- How to install and use Quarto reveal.js extensions
+
+## Before you arrive
+
+Please complete the [setup](setup.qmd) steps so you are ready to go.
+
+## Schedule
+
+See the [schedule](schedule.qmd) for the full run of show.
+
+<!-- TODO: add author bio, logistics, code of conduct link -->

@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mcanouil/quarto-wizard/main/resources/schema.json
+classes:
+  - name: checklist
+    description: >-
+      Wrap a bullet list in a `::: checklist` div to turn each item into an
+      animated checklist fragment. Prefix each item with a marker token such as
+      `[/]` (done), `[-]` (didn't happen), `[~]` (in progress), `[>]` (skipped),
+      `[!]` (blocked), `[?]` (unknown), `[=]` (partial), or `[*]` (priority).
+      Append a number to a marker (e.g. `[/1]`) to control reveal order; items
+      sharing the same number reveal together.

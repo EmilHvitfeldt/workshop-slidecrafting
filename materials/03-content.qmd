@@ -1,0 +1,17 @@
+---
+title: "03 · Content & layout"
+subtitle: "Putting things on the slide"
+---
+
+::::{.slide-embed}
+<iframe class="slide-deck" src="../slides/03-content.html" title="Section slides" loading="lazy"></iframe>
+::::
+
+::::{.slide-links}
+[⛶ Fullscreen](../slides/03-content.html){target="_blank"} [⟨∕⟩ Source](https://github.com/emilhvitfeldt/workshop-slidecrafting/blob/main/slides/03-content.qmd){target="_blank"}
+::::
+
+## Learning objectives
+
+- How we can position elements on the slides
+- Modify standard elements

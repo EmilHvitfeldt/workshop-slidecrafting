@@ -1,0 +1,13 @@
+---
+filters:
+  - shapes
+---
+
+## Shapes
+
+::: {.shape-circle fill="blue"}
+Hello
+:::
+
+::: {.shape-hexagon fill="none" stroke="red" .shape-lg}
+:::

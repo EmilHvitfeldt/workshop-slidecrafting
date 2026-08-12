@@ -1,0 +1,13 @@
+{
+  "checklist-fragments:checklist": {
+    "prefix": "checklist-fragments:checklist",
+    "description": "Insert an animated checklist fragment div for RevealJS.",
+    "body": [
+      "::: checklist",
+      "- [/] ${1:Done item}",
+      "- [-] ${2:Didn't happen}",
+      "- [~] ${3:In progress}",
+      ":::"
+    ]
+  }
+}

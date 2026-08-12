@@ -1,0 +1,18 @@
+---
+title: "Schedule"
+---
+
+A 2-hour workshop (120 minutes), including one short break.
+
+| Time | Duration | Module | Topic | Slides |
+|------|---------:|--------|-------|--------|
+| 0:00 | 25 min | [01](materials/01-quarto.qmd) | What is Quarto? The anatomy of a reveal.js deck | [deck](slides/01-quarto.qmd) |
+| 0:25 | 30 min | [02](materials/02-theming.qmd) | Theming: colors, fonts, sizes, SCSS | [deck](slides/02-theming.qmd) |
+| 0:55 | 5 min  | — | Break | — |
+| 1:00 | 25 min | [03](materials/03-content.qmd) | Content: elements & layout | [deck](slides/03-content.qmd) |
+| 1:25 | 20 min | [04](materials/04-interactivity.qmd) | Interactivity: fragments & auto-animate | [deck](slides/04-interactivity.qmd) |
+| 1:45 | 15 min | [05](materials/05-extensions.qmd) | Extensions & wrap-up | [deck](slides/05-extensions.qmd) |
+
+: Workshop schedule {.striped}
+
+<!-- TODO: adjust timings after dry run -->

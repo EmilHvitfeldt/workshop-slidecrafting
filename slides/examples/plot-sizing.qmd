@@ -1,0 +1,18 @@
+---
+title: "Plot sizing"
+format: revealjs
+---
+
+## Default {#default}
+
+```{r}
+plot(mpg ~ disp, data = mtcars, col = factor(am), pch = 16, bty = "n")
+```
+
+## Tuned {#tuned}
+
+```{r}
+#| fig-width: 6
+#| fig-asp: 0.5
+plot(mpg ~ disp, data = mtcars, col = factor(am), pch = 16, bty = "n")
+```

@@ -1,0 +1,331 @@
+/*-- scss:defaults --*/
+
+// =====================================================================
+//  Theme: "Paper Cut"  ·  loud neubrutalism for the workshop site
+//  Fat black borders · hard offset shadows · slight tilts · 3 accents
+// =====================================================================
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+// --- Palette ---------------------------------------------------------
+$paper:   #f4f1e8;
+$ink:     #0d0d0d;
+$accent:  #ffd23f;   // yellow  — primary splash
+$accent2: #4d61ff;   // blue    — links / active state
+$accent3: #ff5c8a;   // pink    — hover / navbar accent
+
+// --- Bootstrap / Quarto variable overrides ---------------------------
+$primary:    $ink;
+$secondary:  $accent;
+$body-bg:    $paper;
+$body-color: $ink;
+
+$link-color:       $ink;
+$link-hover-color: $accent2;
+
+$font-family-sans-serif: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+$headings-font-family:   "Space Grotesk", "Inter", sans-serif;
+$font-size-root:         18px;
+$headings-font-weight:   700;
+
+$border-radius:    0;   // sharp corners everywhere
+$border-radius-lg: 0;
+
+$code-color: $ink;
+$code-bg:    #fff;
+
+/*-- scss:mixins --*/
+
+// Neubrutalist primitives -------------------------------------------
+$nb-border: 4px solid $ink;
+
+@mixin nb-shadow($x: 9px, $color: $ink) {
+  box-shadow: $x $x 0 0 $color;
+}
+
+// A bordered white "card" on a hard offset shadow
+%nb-card {
+  border: $nb-border;
+  border-radius: 0;
+  background: #fff;
+  @include nb-shadow;
+}
+
+// The recurring mono / bold / uppercase label treatment
+%mono-caps {
+  font-family: "Space Mono", monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/*-- scss:rules --*/
+
+// De-Quarto: hide the breadcrumb bar
+.quarto-page-breadcrumbs { display: none !important; }
+
+body {
+  -webkit-font-smoothing: antialiased;
+  // subtle graph-paper grid
+  background-image:
+    linear-gradient(rgba($ink, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($ink, 0.04) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+// --- Headings: oversized, tight, each on its own slab ----------------
+h1, h2, h3, h4 {
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+
+h1, .quarto-title .title {
+  font-size: 3.4rem;
+  display: inline-block;
+  padding: 0.1em 0.35em;
+  margin-bottom: 0.6em;
+  border: $nb-border;
+  background: $accent;
+  transform: rotate(-1.5deg);
+  @include nb-shadow;
+}
+
+h2 {
+  font-size: 2rem;
+  display: inline-block;
+  padding: 0.15em 0.5em;
+  margin-top: 2.8rem;
+  border: $nb-border;
+  background: #fff;
+  transform: rotate(-0.6deg);
+  @include nb-shadow(5px);
+
+  &:hover { @include nb-shadow(9px, $accent3); }
+}
+
+h3 {
+  display: inline-block;
+  border-bottom: 4px dashed $accent2;
+}
+
+// --- Links: highlighter slab that pops (page content only) -----------
+#quarto-document-content a:not(.btn):not(.quarto-title-meta a),
+.callout-body a {
+  text-decoration: none;
+  font-weight: 700;
+  color: $ink;
+  box-shadow: inset 0 -0.35em 0 $accent;
+  transition: box-shadow 0.1s ease, color 0.1s ease;
+
+  &:hover {
+    color: #fff;
+    box-shadow: inset 0 -1.2em 0 $accent2;
+  }
+}
+
+// --- Navbar: flat ink bar with a chunky pink underline ---------------
+.navbar {
+  background: $ink !important;
+  border-bottom: 6px solid $accent3;
+
+  .navbar-brand {
+    @extend %mono-caps;
+    letter-spacing: -0.02em;
+    color: $paper !important;
+  }
+  .nav-link {
+    @extend %mono-caps;
+    font-size: 0.85rem;
+    color: $paper !important;
+
+    &:hover {
+      color: $ink !important;
+      background: $accent3;
+    }
+  }
+}
+
+// --- Sidebar: active item is a blue chip with a marker ---------------
+.sidebar-navigation {
+  .sidebar-item-text {
+    font-weight: 600;
+    &:hover { color: $accent2; }
+  }
+  .active {
+    position: relative;
+    padding: 0.15rem 0.5rem 0.15rem 1.1rem;
+    font-weight: 800;
+    color: #fff !important;
+    background: $accent2;
+
+    &::before {
+      content: "▸";
+      position: absolute;
+      left: 0.35rem;
+    }
+  }
+}
+
+// --- Callouts: bordered box that straightens & lifts on hover --------
+.callout {
+  @extend %nb-card;
+  border-width: 4px !important;   // beat Quarto's own border rule
+  transform: rotate(-0.5deg);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+  &:hover {
+    transform: rotate(0deg) translate(-2px, -2px);
+    @include nb-shadow(12px);
+  }
+
+  .callout-header {
+    @extend %mono-caps;
+    letter-spacing: 0.03em;
+    border-bottom: $nb-border;
+    padding: 0.4rem 0.6rem !important;
+  }
+  .callout-body, .callout-body-container { padding: 0.6rem; }
+}
+
+.callout.callout-note    .callout-header { background: $accent2 !important; color: #fff !important; }
+.callout.callout-tip     .callout-header { background: $accent  !important; color: $ink !important; }
+.callout.callout-warning .callout-header { background: $accent3 !important; color: #fff !important; }
+
+// --- Tables: heavy grid ----------------------------------------------
+.table {
+  @extend %nb-card;
+
+  thead {
+    @extend %mono-caps;
+    background: $ink;
+    color: $paper;
+    th { border-bottom: $nb-border; letter-spacing: 0.02em; }
+  }
+  td, th { border: 2px solid $ink; }
+  &.table-striped tbody tr:nth-of-type(odd) { background: rgba($accent, 0.18); }
+  tbody tr:hover { background: rgba($accent2, 0.12); }
+}
+
+// --- Code: bordered cards, monospace ---------------------------------
+div.sourceCode, pre {
+  @extend %nb-card;
+  @include nb-shadow(5px);
+}
+pre code, code { font-family: "Space Mono", monospace; }
+
+code:not(.sourceCode) {
+  padding: 0.05em 0.35em;
+  border: 2px solid $ink;
+  background: $accent;
+  font-weight: 700;
+}
+
+// --- Buttons: fat, with a satisfying press ---------------------------
+.btn {
+  @extend %mono-caps;
+  border: $nb-border;
+  border-radius: 0;
+  padding: 0.35em 0.9em;
+  background: $accent;
+  color: $ink;
+  @include nb-shadow(5px);
+  transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.05s;
+
+  &:hover { background: $accent3; color: #fff; }
+  &:active {
+    transform: translate(5px, 5px);
+    box-shadow: none;
+  }
+}
+
+// --- Embedded section slide deck -------------------------------------
+.slide-embed {
+  margin: 1.5rem 0 0.75rem;
+}
+
+.slide-deck {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  border: $nb-border;
+  background: #fff;
+  @include nb-shadow;
+}
+
+.slide-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 2.5rem;
+}
+
+// id-scoped so it beats the content-link highlighter rule
+#quarto-document-content .slide-links a {
+  @extend %mono-caps;
+  padding: 0.35rem 0.8rem;
+  border: $nb-border;
+  background: #fff;
+  color: $ink;
+  font-size: 0.8rem;
+  box-shadow: 4px 4px 0 0 $ink;
+  transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.05s;
+
+  &:hover {
+    background: $accent;
+    color: $ink;
+  }
+  &:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+  }
+}
+
+// --- Page navigation: prev / next as bordered chips ------------------
+.page-navigation .pagination-link {
+  @extend %mono-caps;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  border: $nb-border;
+  background: #fff;
+  color: $ink;
+  font-size: 0.85rem;
+  @include nb-shadow(4px);
+  transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.05s;
+
+  &:hover {
+    background: $accent;
+    color: $ink;
+  }
+  &:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+  }
+
+  .nav-page-text { font-weight: 700; }
+}
+
+// --- Footer links: small mono labels ---------------------------------
+.nav-footer a {
+  @extend %mono-caps;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: $ink;
+  text-decoration: none;
+  box-shadow: inset 0 -0.2em 0 $accent;
+  transition: box-shadow 0.1s ease, color 0.1s ease;
+
+  &:hover {
+    color: #fff;
+    box-shadow: inset 0 -1em 0 $accent2;
+  }
+}
+
+// --- Blockquotes: slab with a pink shadow ----------------------------
+blockquote {
+  @extend %nb-card;
+  border-left-width: 10px;
+  padding: 0.8rem 1rem;
+  transform: rotate(0.4deg);
+  @include nb-shadow(9px, $accent3);
+}

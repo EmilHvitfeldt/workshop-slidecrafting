@@ -1,0 +1,878 @@
+/**
+ * Serialization utilities for converting element state to QMD format.
+ * Handles property serialization, HTML-to-Quarto conversion, and QMD transformation.
+ * @module serialization
+ */
+
+import { CONFIG } from './config.js';
+import { round, getOriginalEditableElements, getOriginalEditableDivs } from './utils.js';
+import { getBrandColorOutput, normalizeColor } from './colors.js';
+import { editableRegistry } from './editable-element.js';
+import { NewElementRegistry } from './registries.js';
+import { quillInstances } from './quill.js';
+
+/**
+ * Find all level-2 heading line indices (slide boundaries) in QMD lines.
+ * @param {string[]} lines - Array of QMD lines
+ * @returns {number[]} Array of line indices where slide headings start
+ */
+function findSlideHeadingLines(lines) {
+  const headings = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    const prevLine = i > 0 ? lines[i - 1].trim() : "";
+    if (line.startsWith("## ") && (i === 0 || prevLine === "")) {
+      headings.push(i);
+    }
+  }
+  return headings;
+}
+
+/**
+ * Property serializers for converting state values to QMD attribute strings.
+ * Each serializer specifies its type ("attr" for attributes, "style" for CSS)
+ * and a serialize function that returns the formatted string.
+ * @type {Object<string, {type: string, serialize: Function}>}
+ * @example
+ * // Add a new serializer
+ * PropertySerializers.opacity = {
+ *   type: "style",
+ *   serialize: (v) => v !== 1 ? `opacity: ${v};` : null
+ * };
+ */
+export const PropertySerializers = {
+  // Core position/size properties (go in attribute list)
+  width: {
+    type: "attr",
+    serialize: (v) => `width=${round(v)}px`,
+  },
+  height: {
+    type: "attr",
+    serialize: (v) => `height=${round(v)}px`,
+  },
+  left: {
+    type: "attr",
+    serialize: (v) => `left=${round(v)}px`,
+  },
+  top: {
+    type: "attr",
+    serialize: (v) => `top=${round(v)}px`,
+  },
+
+  // Style properties (go in style attribute)
+  fontSize: {
+    type: "style",
+    serialize: (v) => (v ? `font-size: ${v}px;` : null),
+  },
+  textAlign: {
+    type: "style",
+    serialize: (v) => (v ? `text-align: ${v};` : null),
+  },
+  rotation: {
+    type: "style",
+    serialize: (v) => (v ? `transform: rotate(${round(v)}deg);` : null),
+  },
+
+  // Image-specific properties
+  opacity: {
+    type: "style",
+    serialize: (v) => (v !== 100 ? `opacity: ${Math.round((v / 100) * 1000) / 1000};` : null),
+  },
+  borderRadius: {
+    type: "style",
+    serialize: (v) => (v ? `border-radius: ${round(v)}px;` : null),
+  },
+  cropTop: {
+    type: "style",
+    serialize: () => null, // combined into crop serializer below
+  },
+  cropRight: {
+    type: "style",
+    serialize: () => null,
+  },
+  cropBottom: {
+    type: "style",
+    serialize: () => null,
+  },
+  cropLeft: {
+    type: "style",
+    serialize: () => null,
+  },
+  flipH: {
+    type: "style",
+    serialize: () => null, // combined into imageTransform
+  },
+  flipV: {
+    type: "style",
+    serialize: () => null, // combined into imageTransform
+  },
+  imageTransform: {
+    type: "style",
+    serialize: (v) => (v ? `transform: ${v};` : null),
+  },
+};
+
+/**
+ * Serialize dimensions object to QMD attribute string.
+ * @param {Object} dimensions - Dimension values from EditableElement.toDimensions()
+ * @returns {string} Formatted attribute string (e.g., "{.absolute width=200px ...}")
+ */
+export function serializeToQmd(dimensions) {
+  const attrs = [];
+  const styles = [];
+
+  // Compose rotation and flips into a single transform value
+  const transformParts = [];
+  if (dimensions.rotation) {
+    transformParts.push(`rotate(${round(dimensions.rotation)}deg)`);
+  }
+  if (dimensions.flipH) {
+    transformParts.push("scaleX(-1)");
+  }
+  if (dimensions.flipV) {
+    transformParts.push("scaleY(-1)");
+  }
+  if (transformParts.length > 0) {
+    styles.push(`transform: ${transformParts.join(" ")};`);
+  }
+
+  // Compose clip-path from crop insets
+  const { cropTop: ct, cropRight: cr, cropBottom: cb, cropLeft: cl } = dimensions;
+  if (ct || cr || cb || cl) {
+    styles.push(`clip-path: inset(${ct || 0}px ${cr || 0}px ${cb || 0}px ${cl || 0}px);`);
+  }
+
+  const skipKeys = new Set(["rotation", "flipH", "flipV", "cropTop", "cropRight", "cropBottom", "cropLeft"]);
+
+  for (const [key, value] of Object.entries(dimensions)) {
+    if (skipKeys.has(key)) continue;
+    const serializer = PropertySerializers[key];
+    if (serializer && value != null) {
+      const result = serializer.serialize(value);
+      if (result) {
+        if (serializer.type === "style") {
+          styles.push(result);
+        } else {
+          attrs.push(result);
+        }
+      }
+    }
+  }
+
+  let str = `{.absolute ${attrs.join(" ")}`;
+  if (styles.length > 0) {
+    str += ` style="${styles.join(" ")}"`;
+  }
+  str += "}";
+  return str;
+}
+
+/**
+ * Get the fence string needed for div content.
+ * If content contains :::, uses :::: (or longer) to avoid conflicts.
+ * @param {string} content - The content to be fenced
+ * @returns {string} Fence string (e.g., ":::" or "::::")
+ */
+export function getFenceForContent(content) {
+  // Find the longest sequence of colons at the start of any line
+  const matches = content.match(/^:+/gm) || [];
+  let maxColons = CONFIG.NEW_FENCE_LENGTH;
+  for (const match of matches) {
+    if (match.length >= maxColons) {
+      maxColons = match.length + 1;
+    }
+  }
+  return ":".repeat(maxColons);
+}
+
+/**
+ * Convert element innerHTML to Quarto/Markdown text with proper formatting.
+ * Handles Quill editor content, HTML tags, and brand color shortcodes.
+ * @param {HTMLElement} element - The element to convert
+ * @returns {string} Quarto-formatted markdown text
+ */
+export function elementToText(element) {
+  // If Quill was used, get content from .ql-editor
+  const quillEditor = element.querySelector(".ql-editor");
+  let html = quillEditor ? quillEditor.innerHTML.trim() : element.innerHTML.trim();
+
+  // Use \x00N\x00 tokens so user-typed content can never collide.
+  // U+0000 is not valid in HTML, so these markers are unambiguous.
+  const tokens = [];
+  const placeholder = (data) => {
+    const idx = tokens.length;
+    tokens.push(data);
+    return `\x00${idx}\x00`;
+  };
+
+  // Process color spans first (before alignment extraction) so they are resolved
+  // inside aligned paragraphs as well as outside them.
+  // Background color (must be before foreground to avoid false matches on "color:")
+  html = html.replace(/<span[^>]*style="[^"]*background-color:\s*([^;"]+)[^"]*"[^>]*>([^<]*)<\/span>/gi,
+    (match, colorVal, content) => {
+      const colorOutput = getBrandColorOutput(colorVal.trim());
+      return `[${content}]{style='background-color: ${colorOutput}'}`;
+    });
+
+  // Foreground color
+  html = html.replace(/<span[^>]*style="[^"]*(?<!background-)color:\s*([^;"]+)[^"]*"[^>]*>([^<]*)<\/span>/gi,
+    (match, colorVal, content) => {
+      if (colorVal.trim().toLowerCase() === 'inherit') return content;
+      const colorOutput = getBrandColorOutput(colorVal.trim());
+      return `[${content}]{style='color: ${colorOutput}'}`;
+    });
+
+  // Handle Quill alignment classes on paragraphs — capture before stripping tags
+  html = html.replace(/<p[^>]*class="[^"]*ql-align-(center|right|justify)[^"]*"[^>]*>([\s\S]*?)<\/p>/gi,
+    (match, align, content) => placeholder({ type: "align", align, content }) + "\n\n");
+
+  // Convert HTML tags to Quarto/Markdown equivalents
+  let text = html;
+  text = text.replace(/<br\s*\/?>/gi, "\n");
+
+  // Handle remaining p tags (left-aligned or no alignment)
+  text = text.replace(/<p[^>]*>/gi, "");
+  text = text.replace(/<\/p>/gi, "\n\n");
+  text = text.replace(/<code[^>]*>/gi, "`");
+  text = text.replace(/<\/code>/gi, "`");
+
+  // Bold: <strong> and <b> → **text**
+  text = text.replace(/<strong[^>]*>/gi, "**");
+  text = text.replace(/<\/strong>/gi, "**");
+  text = text.replace(/<b[^>]*>/gi, "**");
+  text = text.replace(/<\/b>/gi, "**");
+
+  // Italic: <em> and <i> → *text*
+  text = text.replace(/<em[^>]*>/gi, "*");
+  text = text.replace(/<\/em>/gi, "*");
+  text = text.replace(/<i[^>]*>/gi, "*");
+  text = text.replace(/<\/i>/gi, "*");
+
+  // Strikethrough: <del> and <s> and <strike> → ~~text~~
+  text = text.replace(/<del[^>]*>/gi, "~~");
+  text = text.replace(/<\/del>/gi, "~~");
+  text = text.replace(/<s(?![a-z])[^>]*>/gi, "~~");
+  text = text.replace(/<\/s(?![a-z])>/gi, "~~");
+  text = text.replace(/<strike[^>]*>/gi, "~~");
+  text = text.replace(/<\/strike>/gi, "~~");
+
+  // Underline: <u> → [text]{.underline}
+  text = text.replace(/<u[^>]*>/gi, "[");
+  text = text.replace(/<\/u>/gi, "]{.underline}");
+
+  // Links: <a href="url">text</a> → [text](url)
+  text = text.replace(/<a[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/gi, "[$2]($1)");
+
+  // Remove any remaining HTML tags (cleanup)
+  text = text.replace(/<[^>]+>/g, "");
+
+  // Decode HTML entities
+  text = text.replace(/&lt;/g, "<");
+  text = text.replace(/&gt;/g, ">");
+  text = text.replace(/&amp;/g, "&");
+  text = text.replace(/&quot;/g, '"');
+  text = text.replace(/&#39;/g, "'");
+  text = text.replace(/&nbsp;/g, " ");
+
+  // Clean up excessive newlines
+  text = text.replace(/\n{3,}/g, "\n\n");
+
+  // Resolve alignment tokens into fenced divs
+  text = text.replace(/\x00(\d+)\x00/g, (match, idx) => {
+    const token = tokens[parseInt(idx, 10)];
+    if (token.type === "align") {
+      const innerText = elementToText({ innerHTML: token.content, querySelector: () => null });
+      const innerFence = getFenceForContent(innerText);
+      return `${innerFence} {style="text-align: ${token.align}"}\n${innerText}\n${innerFence}`;
+    }
+    return match;
+  });
+
+  // Convert brand color shortcode markers (inserted by getBrandColorOutput)
+  text = text.replace(/__BRAND_SHORTCODE_(\w+)__/g, '{{< brand color $1 >}}');
+
+  return text.trim();
+}
+
+/**
+ * Serialize an arrow to quarto-arrows shortcode format.
+ * @param {Object} arrow - Arrow data object
+ * @returns {string} Arrow shortcode (e.g., '{{< arrow from="x,y" to="x,y" ... >}}')
+ */
+export function serializeArrowToShortcode(arrow) {
+  const fromX = round(arrow.fromX);
+  const fromY = round(arrow.fromY);
+  const toX = round(arrow.toX);
+  const toY = round(arrow.toY);
+
+  let shortcode = `{{< arrow from="${fromX},${fromY}" to="${toX},${toY}"`;
+
+  // Add control points if they exist (curved arrow)
+  if (arrow.control1X !== null && arrow.control1Y !== null) {
+    const c1x = round(arrow.control1X);
+    const c1y = round(arrow.control1Y);
+    shortcode += ` control1="${c1x},${c1y}"`;
+  }
+
+  if (arrow.control2X !== null && arrow.control2Y !== null) {
+    const c2x = round(arrow.control2X);
+    const c2y = round(arrow.control2Y);
+    shortcode += ` control2="${c2x},${c2y}"`;
+  }
+
+  // Add waypoints if they exist
+  if (arrow.waypoints && arrow.waypoints.length > 0) {
+    const waypointsStr = arrow.waypoints
+      .map(wp => `${round(wp.x)},${round(wp.y)}`)
+      .join(" ");
+    shortcode += ` waypoints="${waypointsStr}"`;
+
+    // Add smooth only if waypoints exist and smooth is enabled
+    if (arrow.smooth) {
+      shortcode += ` smooth="true"`;
+    }
+  }
+
+  // Add styling (only if non-default)
+  const normalizedArrowColor = normalizeColor(arrow.color);
+  if (arrow.color && normalizedArrowColor !== "#000000") {
+    const colorOutput = getBrandColorOutput(arrow.color);
+    shortcode += ` color="${colorOutput}"`;
+  }
+
+  if (arrow.width && arrow.width !== CONFIG.ARROW_DEFAULT_WIDTH) {
+    shortcode += ` width="${arrow.width}"`;
+  }
+
+  if (arrow.head && arrow.head !== "arrow") {
+    shortcode += ` head="${arrow.head}"`;
+  }
+
+  if (arrow.dash && arrow.dash !== "solid") {
+    shortcode += ` dash="${arrow.dash}"`;
+  }
+
+  if (arrow.line && arrow.line !== "single") {
+    shortcode += ` line="${arrow.line}"`;
+  }
+
+  if (arrow.opacity !== undefined && arrow.opacity !== 1) {
+    shortcode += ` opacity="${arrow.opacity}"`;
+  }
+
+  // Label attributes
+  if (arrow.label) {
+    shortcode += ` label="${arrow.label}"`;
+  }
+
+  if (arrow.label && arrow.labelPosition && arrow.labelPosition !== "middle") {
+    shortcode += ` label-position="${arrow.labelPosition}"`;
+  }
+
+  if (arrow.label && arrow.labelOffset !== undefined && arrow.labelOffset !== CONFIG.ARROW_DEFAULT_LABEL_OFFSET) {
+    shortcode += ` label-offset="${arrow.labelOffset}"`;
+  }
+
+  shortcode += ` position="absolute" >}}`;
+
+  return shortcode;
+}
+
+/**
+ * Build the attribute fence (`{.shape-* .absolute ...}`) for a shape from a
+ * dimensions object produced by EditableElement.toDimensions().
+ * Emits quarto-shapes syntax: the shape class, .absolute positioning, position
+ * attributes, fill/stroke attributes, an optional stroke-width class, optional
+ * rotation as an inline transform, and direction= for callouts.
+ * @param {Object} dims
+ * @returns {string}
+ */
+export function serializeShapeAttrs(dims) {
+  const classes = [];
+  if (dims.shapeType) classes.push(`.shape-${dims.shapeType}`);
+  classes.push(".absolute");
+  if (dims.strokeWidth) classes.push(`.shape-stroke-${dims.strokeWidth}`);
+
+  const attrs = [
+    `left=${round(dims.left)}px`,
+    `top=${round(dims.top)}px`,
+    `width=${round(dims.width)}px`,
+    `height=${round(dims.height)}px`,
+  ];
+  if (dims.fill) attrs.push(`fill="${getBrandColorOutput(dims.fill)}"`);
+  if (dims.stroke) attrs.push(`stroke="${getBrandColorOutput(dims.stroke)}"`);
+  if (dims.direction != null) attrs.push(`direction="${dims.direction}"`);
+
+  let str = `{${classes.join(" ")} ${attrs.join(" ")}`;
+  if (dims.rotation) {
+    str += ` style="transform: rotate(${round(dims.rotation)}deg);"`;
+  }
+  str += "}";
+  return str;
+}
+
+/**
+ * Build the QMD lines for a tracked new shape (blank line, opening fence with
+ * attributes, content, closing fence).
+ * @param {{element: HTMLElement}} shapeInfo
+ * @returns {string[]}
+ */
+function buildShapeBlock(shapeInfo) {
+  const editableElt = editableRegistry.get(shapeInfo.element);
+  if (!editableElt) return [];
+  const dims = editableElt.toDimensions();
+  const attrStr = serializeShapeAttrs(dims);
+  const contentEl = shapeInfo.element.querySelector(".shape-content");
+  const content = contentEl ? elementToText(contentEl) : "";
+  const fence = getFenceForContent(content);
+  return ["", `${fence} ${attrStr}`, content, fence];
+}
+
+/**
+ * Insert new shapes into QMD content (for shapes on original slides).
+ * @param {string} text - QMD content
+ * @returns {string} Updated QMD content
+ */
+export function insertNewShapes(text) {
+  const items = NewElementRegistry.newShapes.filter((s) => !s.newSlideRef);
+  return insertContentBySlide(text, items, (shapesForSlide) => {
+    const newContent = [];
+    for (const shapeInfo of shapesForSlide) {
+      newContent.push(...buildShapeBlock(shapeInfo));
+    }
+    return newContent;
+  });
+}
+
+/**
+ * Extract dimensions from all original editable elements.
+ * @returns {Object[]} Array of dimension objects for serialization
+ */
+export function extractEditableEltDimensions() {
+  // Only process original elements, not dynamically added ones
+  const editableElements = getOriginalEditableElements();
+  const dimensions = [];
+
+  editableElements.forEach((elt) => {
+    const editableElt = editableRegistry.get(elt);
+    if (editableElt) {
+      // Use centralized state
+      dimensions.push(editableElt.toDimensions());
+    } else {
+      // Fallback for elements not in registry (shouldn't happen)
+      const width = elt.style.width ? parseFloat(elt.style.width) : elt.offsetWidth;
+      const height = elt.style.height ? parseFloat(elt.style.height) : elt.offsetHeight;
+
+      const parentContainer = elt.parentNode;
+      const left = parentContainer.style.left
+        ? parseFloat(parentContainer.style.left)
+        : parentContainer.offsetLeft;
+      const top = parentContainer.style.top
+        ? parseFloat(parentContainer.style.top)
+        : parentContainer.offsetTop;
+
+      dimensions.push({ width, height, left, top });
+    }
+  });
+
+  return dimensions;
+}
+
+/**
+ * Insert new slides (with their associated divs and arrows) into QMD content.
+ * Handles tree-based ordering for chained slide insertions.
+ * @param {string} text - Original QMD content
+ * @returns {{text: string, slideLinePositions: Map}} Updated text and position map
+ */
+export function insertNewSlides(text) {
+  if (NewElementRegistry.newSlides.length === 0) {
+    return { text, slideLinePositions: new Map() };
+  }
+
+  const lines = text.split("\n");
+  const slideHeadingLines = findSlideHeadingLines(lines);
+
+  // Build a map of new slides to their associated divs
+  const divsByNewSlide = new Map();
+  for (const divInfo of NewElementRegistry.newDivs) {
+    if (divInfo.newSlideRef) {
+      if (!divsByNewSlide.has(divInfo.newSlideRef)) {
+        divsByNewSlide.set(divInfo.newSlideRef, []);
+      }
+      divsByNewSlide.get(divInfo.newSlideRef).push(divInfo);
+    }
+  }
+
+  // Build a map of new slides to their associated arrows
+  const arrowsByNewSlide = new Map();
+  for (const arrowInfo of NewElementRegistry.newArrows) {
+    if (arrowInfo.newSlideRef) {
+      if (!arrowsByNewSlide.has(arrowInfo.newSlideRef)) {
+        arrowsByNewSlide.set(arrowInfo.newSlideRef, []);
+      }
+      arrowsByNewSlide.get(arrowInfo.newSlideRef).push(arrowInfo);
+    }
+  }
+
+  // Build a map of new slides to their associated shapes
+  const shapesByNewSlide = new Map();
+  for (const shapeInfo of NewElementRegistry.newShapes) {
+    if (shapeInfo.newSlideRef) {
+      if (!shapesByNewSlide.has(shapeInfo.newSlideRef)) {
+        shapesByNewSlide.set(shapeInfo.newSlideRef, []);
+      }
+      shapesByNewSlide.get(shapeInfo.newSlideRef).push(shapeInfo);
+    }
+  }
+
+  // Build tree structure for slides with same afterSlideIndex
+  function flattenSlideTree(slides) {
+    const childrenOf = new Map();
+    const roots = [];
+
+    for (const slide of slides) {
+      if (slide.insertAfterNewSlide && slides.includes(slide.insertAfterNewSlide)) {
+        if (!childrenOf.has(slide.insertAfterNewSlide)) {
+          childrenOf.set(slide.insertAfterNewSlide, []);
+        }
+        childrenOf.get(slide.insertAfterNewSlide).push(slide);
+      } else {
+        roots.push(slide);
+      }
+    }
+
+    roots.sort((a, b) => b.insertionOrder - a.insertionOrder);
+
+    for (const [, children] of childrenOf) {
+      children.sort((a, b) => b.insertionOrder - a.insertionOrder);
+    }
+
+    const result = [];
+    function visit(slide) {
+      result.push(slide);
+      const children = childrenOf.get(slide) || [];
+      for (const child of children) {
+        visit(child);
+      }
+    }
+    for (const root of roots) {
+      visit(root);
+    }
+    return result;
+  }
+
+  // Group slides by afterSlideIndex
+  const slidesByAfterIndex = new Map();
+  for (const slide of NewElementRegistry.newSlides) {
+    const idx = slide.afterSlideIndex;
+    if (!slidesByAfterIndex.has(idx)) {
+      slidesByAfterIndex.set(idx, []);
+    }
+    slidesByAfterIndex.get(idx).push(slide);
+  }
+
+  const afterIndices = [...slidesByAfterIndex.keys()].sort((a, b) => b - a);
+
+  const slideLinePositions = new Map();
+
+  for (const afterIdx of afterIndices) {
+    const slidesForThisIndex = slidesByAfterIndex.get(afterIdx);
+    const orderedSlides = flattenSlideTree(slidesForThisIndex);
+
+    const targetHeadingIndex = afterIdx;
+    let baseInsertLineIndex;
+    if (targetHeadingIndex >= slideHeadingLines.length) {
+      baseInsertLineIndex = lines.length;
+    } else if (targetHeadingIndex + 1 < slideHeadingLines.length) {
+      baseInsertLineIndex = slideHeadingLines[targetHeadingIndex + 1];
+    } else {
+      baseInsertLineIndex = lines.length;
+    }
+
+    for (let i = orderedSlides.length - 1; i >= 0; i--) {
+      const newSlide = orderedSlides[i];
+
+      const newSlideContent = ["", CONFIG.NEW_SLIDE_HEADING, ""];
+
+      const divsForThisSlide = divsByNewSlide.get(newSlide) || [];
+      for (const divInfo of divsForThisSlide) {
+        const editableElt = editableRegistry.get(divInfo.element);
+        if (editableElt) {
+          const dims = editableElt.toDimensions();
+          const attrStr = serializeToQmd(dims);
+          const textContent =
+            elementToText(divInfo.element) || CONFIG.NEW_TEXT_CONTENT;
+
+          const fence = getFenceForContent(textContent);
+
+          newSlideContent.push("");
+          newSlideContent.push(`${fence} ${attrStr}`);
+          newSlideContent.push(textContent);
+          newSlideContent.push(fence);
+        }
+      }
+
+      const arrowsForThisSlide = arrowsByNewSlide.get(newSlide) || [];
+      for (const arrowInfo of arrowsForThisSlide) {
+        const shortcode = serializeArrowToShortcode(arrowInfo);
+        newSlideContent.push("");
+        newSlideContent.push(shortcode);
+        newSlideContent.push("");
+      }
+
+      const shapesForThisSlide = shapesByNewSlide.get(newSlide) || [];
+      for (const shapeInfo of shapesForThisSlide) {
+        newSlideContent.push(...buildShapeBlock(shapeInfo));
+      }
+
+      slideLinePositions.set(newSlide, baseInsertLineIndex + 1);
+
+      lines.splice(baseInsertLineIndex, 0, ...newSlideContent);
+
+      for (const [slide, pos] of slideLinePositions) {
+        if (slide !== newSlide && pos >= baseInsertLineIndex) {
+          slideLinePositions.set(slide, pos + newSlideContent.length);
+        }
+      }
+    }
+
+    const totalLinesAdded = orderedSlides.reduce((sum, slide) => {
+      const divs = divsByNewSlide.get(slide) || [];
+      const arrows = arrowsByNewSlide.get(slide) || [];
+      const shapes = shapesByNewSlide.get(slide) || [];
+      return sum + 3 + divs.length * 4 + arrows.length * 3 + shapes.length * 4;
+    }, 0);
+
+    for (let j = 0; j < slideHeadingLines.length; j++) {
+      if (slideHeadingLines[j] >= baseInsertLineIndex) {
+        slideHeadingLines[j] += totalLinesAdded;
+      }
+    }
+  }
+
+  return { text: lines.join("\n"), slideLinePositions };
+}
+
+/**
+ * Group items by slideIndex and insert generated content into QMD lines.
+ * Items must have a `slideIndex` property; `buildContent` receives the group
+ * and returns an array of strings to splice in before the next slide heading.
+ * @param {string} text - QMD content
+ * @param {Array} items - Items to insert (each has `slideIndex`)
+ * @param {Function} buildContent - (items) => string[]
+ * @returns {string} Updated QMD content
+ */
+function insertContentBySlide(text, items, buildContent) {
+  if (items.length === 0) return text;
+
+  const lines = text.split("\n");
+  const slideHeadingLines = findSlideHeadingLines(lines);
+
+  const bySlide = new Map();
+  for (const item of items) {
+    const idx = item.slideIndex;
+    if (!bySlide.has(idx)) bySlide.set(idx, []);
+    bySlide.get(idx).push(item);
+  }
+
+  const slideIndices = [...bySlide.keys()].sort((a, b) => b - a);
+
+  for (const slideIdx of slideIndices) {
+    let insertLineIndex;
+    if (slideIdx >= slideHeadingLines.length) {
+      insertLineIndex = lines.length;
+    } else if (slideIdx + 1 < slideHeadingLines.length) {
+      insertLineIndex = slideHeadingLines[slideIdx + 1];
+    } else {
+      insertLineIndex = lines.length;
+    }
+
+    const newContent = buildContent(bySlide.get(slideIdx));
+
+    if (newContent.length > 0) {
+      lines.splice(insertLineIndex, 0, ...newContent);
+      for (let i = 0; i < slideHeadingLines.length; i++) {
+        if (slideHeadingLines[i] >= insertLineIndex) {
+          slideHeadingLines[i] += newContent.length;
+        }
+      }
+    }
+  }
+
+  return lines.join("\n");
+}
+
+/**
+ * Insert new text divs into QMD content (for divs on original slides).
+ * @param {string} text - QMD content (may already have new slides inserted)
+ * @param {Map} [slideLinePositions=new Map()] - Position map from insertNewSlides
+ * @returns {string} Updated QMD content
+ */
+export function insertNewDivs(text) {
+  const items = NewElementRegistry.newDivs.filter((div) => !div.newSlideRef);
+  return insertContentBySlide(text, items, (divsForSlide) => {
+    const newContent = [];
+    for (const divInfo of divsForSlide) {
+      const editableElt = editableRegistry.get(divInfo.element);
+      if (editableElt) {
+        const dims = editableElt.toDimensions();
+        const attrStr = serializeToQmd(dims);
+        const textContent = elementToText(divInfo.element) || CONFIG.NEW_TEXT_CONTENT;
+        const fence = getFenceForContent(textContent);
+        newContent.push("", `${fence} ${attrStr}`, textContent, fence);
+      }
+    }
+    return newContent;
+  });
+}
+
+/**
+ * Insert new arrows into QMD content (for arrows on original slides).
+ * @param {string} text - QMD content
+ * @param {Map} [slideLinePositions=new Map()] - Position map from insertNewSlides
+ * @returns {string} Updated QMD content
+ */
+export function insertNewArrows(text) {
+  const items = NewElementRegistry.newArrows.filter((arrow) => !arrow.newSlideRef);
+  return insertContentBySlide(text, items, (arrowsForSlide) => {
+    const newContent = [];
+    for (const arrow of arrowsForSlide) {
+      newContent.push("", serializeArrowToShortcode(arrow), "");
+    }
+    return newContent;
+  });
+}
+
+/**
+ * Update existing text div content in QMD (converts HTML to Quarto markdown).
+ * @param {string} text - QMD content
+ * @returns {string} Updated QMD content with converted div contents
+ */
+export function updateTextDivs(text) {
+  const divs = getOriginalEditableDivs();
+  const replacements = Array.from(divs).map(htmlToQuarto);
+
+  const regex = /^(:{3,}) ?(?:\{\.editable[^}]*\}|editable)\n([\s\S]*?)\n\1$/gm;
+
+  let index = 0;
+  return text.replace(regex, (match, fence, originalContent) => {
+    const replacement = replacements[index++];
+    if (replacement === null) {
+      const contentFence = getFenceForContent(originalContent);
+      return `${contentFence} {.editable}\n${originalContent}\n${contentFence}`;
+    }
+    return replacement || "";
+  });
+}
+
+/**
+ * Convert a div's HTML content to Quarto fenced div format.
+ * Returns null if div wasn't modified (preserves original content).
+ * @param {HTMLElement} div - The div element
+ * @returns {string|null} Quarto fenced div or null if unmodified
+ */
+export function htmlToQuarto(div) {
+  const quillData = quillInstances.get(div);
+  if (quillData && !quillData.isDirty) {
+    return null;
+  }
+
+  const text = elementToText(div);
+
+  const fence = getFenceForContent(text);
+  return `${fence} {.editable}\n` + text.trim() + `\n${fence}`;
+}
+
+/**
+ * Replace {.editable} attribute strings with {.absolute ...} in QMD.
+ * Also replaces image src when srcReplacements[i] is non-null.
+ * @param {string} text - QMD content
+ * @param {string[]} replacements - Array of replacement attribute strings
+ * @param {Array<string|null>} srcReplacements - Per-element new src (null = no change)
+ * @returns {string} Updated QMD content
+ */
+export function replaceEditableOccurrences(text, replacements, srcReplacements = []) {
+  // For images: consume ](src) so we can replace src too
+  const regex = /(?:^(:{3,}) |\]\(([^)]*)\))\{\.editable([^}]*)\}/gm;
+
+  let index = 0;
+  return text.replace(regex, (match, fenceColons, originalSrc, extraAttrs) => {
+    const isDiv = fenceColons !== undefined;
+    const attrs = replacements[index] || "";
+    const newSrc = srcReplacements[index] || null;
+    index++;
+
+    // Preserve any extra classes/attributes beyond .editable (e.g. {.editable .other})
+    const extra = (extraAttrs || "").trim();
+    const finalAttrs = extra ? attrs.replace(/^\{/, `{${extra} `) : attrs;
+
+    if (isDiv) {
+      return fenceColons + ' ' + finalAttrs;
+    } else {
+      return `](${newSrc ?? originalSrc})${finalAttrs}`;
+    }
+  });
+}
+
+/**
+ * Format dimension objects as QMD attribute strings.
+ * @param {Object[]} dimensions - Array of dimension objects
+ * @returns {string[]} Array of formatted attribute strings
+ */
+export function formatEditableEltStrings(dimensions) {
+  return dimensions.map((dim) => serializeToQmd(dim));
+}
+
+/**
+ * Replace plain image markdown with positioned attributes for images
+ * that were made editable via modify mode (data-editable-modified).
+ * These are not in the positional .editable index, so they need their
+ * own write-back path that matches by src.
+ * @param {string} text - QMD content
+ * @returns {string} Updated QMD content
+ */
+/**
+ * Split QMD source into per-slide chunks using ## headers as boundaries.
+ * Returns [preamble, slide0, slide1, ...] where preamble is everything before
+ * the first ## header (including YAML front matter). Rejoining the array
+ * with '' recovers the original text.
+ * @param {string} text
+ * @returns {string[]}
+ */
+export function splitIntoSlideChunks(text) {
+  // Strip YAML front matter so its --- delimiters are not treated as boundaries
+  let preamble = '';
+  let body = text;
+  if (text.startsWith('---\n')) {
+    const closingIdx = text.indexOf('\n---\n', 4);
+    if (closingIdx !== -1) {
+      const end = closingIdx + 5; // include the closing ---\n
+      preamble = text.slice(0, end);
+      body = text.slice(end);
+    }
+  }
+
+  // Split body on ## slide headers
+  const parts = body.split(/(?=^## )/m);
+
+  // parts[0] may be pre-slide content (blank lines, etc.) or a ## slide itself
+  const firstIsSlide = parts[0].startsWith('## ');
+  const preslide = firstIsSlide ? '' : parts[0];
+  const slideChunks = firstIsSlide ? parts : parts.slice(1);
+
+  return [preamble + preslide, ...slideChunks];
+}
+
+/**
+ * Apply every registered classifier's serialize() to the QMD source.
+ * This is the single write-back entry point for all element types activated
+ * via modify mode; each classifier owns its own serialization logic.
+ * Imported lazily to avoid a circular dependency (modify-mode → serialization
+ * → modify-mode). The ModifyModeClassifier object is passed in by io.js.
+ * @param {string} text
+ * @param {{ applySerializers: function(string): string }} classifierRegistry
+ * @returns {string}
+ */
+export function applyModifiedSerializers(text, classifierRegistry) {
+  return classifierRegistry.applySerializers(text);
+}

@@ -1,0 +1,17 @@
+---
+format:
+  revealjs:
+    theme: [default, highlight-last.scss]
+---
+
+## Highlight the current item
+
+::: {.fragment .highlight-last}
+- first
+:::
+::: {.fragment .highlight-last}
+- second
+:::
+::: {.fragment .highlight-last}
+- third
+:::

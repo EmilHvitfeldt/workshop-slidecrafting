@@ -1,0 +1,18 @@
+---
+title: "04 · Interactivity"
+subtitle: "Fragments & auto-animate"
+---
+
+::::{.slide-embed}
+<iframe class="slide-deck" src="../slides/04-interactivity.html" title="Section slides" loading="lazy"></iframe>
+::::
+
+::::{.slide-links}
+[⛶ Fullscreen](../slides/04-interactivity.html){target="_blank"} [⟨∕⟩ Source](https://github.com/emilhvitfeldt/workshop-slidecrafting/blob/main/slides/04-interactivity.qmd){target="_blank"}
+::::
+
+## Learning objectives
+
+- What are fragments and how do we use them
+- Making our own fragments
+- Match elements across slides with auto-animate

@@ -1,0 +1,21 @@
+{
+  "name": "quarto-revealjs-editable",
+  "version": "7.0.0",
+  "private": true,
+  "description": "Quarto extension for editable reveal.js presentation elements",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --outfile=editable.js --format=iife --global-name=EditableModule && esbuild node_modules/quill/dist/quill.snow.css --bundle --outfile=quill.css",
+    "build:minify": "esbuild src/main.js --bundle --outfile=editable.js --format=iife --global-name=EditableModule --minify && esbuild node_modules/quill/dist/quill.snow.css --bundle --outfile=quill.css --minify",
+    "watch": "esbuild src/main.js --bundle --outfile=editable.js --format=iife --global-name=EditableModule --watch",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0",
+    "vitest": "^1.0.0"
+  },
+  "dependencies": {
+    "quill": "^2.0.2"
+  }
+}

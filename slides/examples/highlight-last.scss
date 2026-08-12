@@ -1,0 +1,14 @@
+/*-- scss:rules --*/
+.reveal .slides section .fragment.highlight-last {
+  opacity: 0; // default
+  visibility: hidden; // default
+  color: grey;
+}
+
+.reveal .slides section .fragment.highlight-last.visible {
+  color: grey;
+}
+
+.reveal .slides section .fragment.highlight-last.current-fragment {
+  color: #5500ff;
+}

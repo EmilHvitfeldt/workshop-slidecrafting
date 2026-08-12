@@ -1,0 +1,18 @@
+---
+title: "02 · Theming"
+subtitle: "Colors, fonts, sizes & SCSS"
+---
+
+::::{.slide-embed}
+<iframe class="slide-deck" src="../slides/02-theming.html" title="Section slides" loading="lazy"></iframe>
+::::
+
+::::{.slide-links}
+[⛶ Fullscreen](../slides/02-theming.html){target="_blank"} [⟨∕⟩ Source](https://github.com/emilhvitfeldt/workshop-slidecrafting/blob/main/slides/02-theming.qmd){target="_blank"}
+::::
+
+## Learning objectives
+
+- Know what an SCSS file is and how to use it
+- Set fonts, colors, and sizes with sass variables
+- Know when to drop down to CSS rules
